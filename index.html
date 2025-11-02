@@ -140,19 +140,24 @@
 </header>
 
 <nav>
-  <a href="#news">ニュース</a>
+  <a href="https://www.kirby.jp/news/">ニュース</a>
   <a href="#gallery">ギャラリー</a>
   <a href="#cosplay">コスプレ</a>
   <a href="#wallpaper">壁紙</a>
-  <a href="#community">投稿フォーム</a>
+  <a href="#submit">投稿フォーム</a>
 </nav>
 
 <main>
   <!-- ニュース -->
   <section class="card" id="news">
     <h2>最新ニュース</h2>
-    <p>AIが作った架空の新作ゲーム『星のカービィ：ドリームユニバース』が今冬発売予定！</p>
+    <li>
+      <form name="a" id="a" action="https://www.kirby.jp/news/" method="get" target="_blank">
+    <button name="a" id="a" href="https://www.kirby.jp/news/">カービィのニュースへ移動</button>
+      </form>
+  </li>
   </section>
+  
 
   <!-- ファンアート -->
   <section class="card" id="gallery">
@@ -201,7 +206,11 @@
     "art3.png",
     "art4.png",
     "art5.png",
-    "art6.png"
+    "art6.png",
+    "art7.png",
+    "art8.png",
+    "art9.png",
+    "art10.png"
   ];
 
   const cosplayList = [
@@ -210,7 +219,11 @@
     "cosplay3.png",
     "cosplay4.png",
     "cosplay5.png",
-    "cosplay6.png"
+    "cosplay6.png",
+    "cosplay7.png",
+    "cosplay8.png",
+    "cosplay9.png",
+    "cosplay10.png"
   ];
 
   const wallpaperList = [
@@ -219,7 +232,11 @@
     "wallpaper3.png",
     "wallpaper4.png",
     "wallpaper5.png",
-    "wallpaper6.png"
+    "wallpaper6.png",
+    "wallpaper7.png",
+    "wallpaper8.png",
+    "wallpaper9.png",
+    "wallpaper10.png"
   ];
 
   const makeGallery = (list, targetId) => {
