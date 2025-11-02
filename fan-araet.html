@@ -1,7 +1,4 @@
 <!DOCTYPE html>
-<head>
-  <link rel="icon" href="favicon.ico">
-</head>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
@@ -10,7 +7,7 @@
   <style>
     body {
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
+      font-family: "Segoe UI", "Hiragino Sans", sans-serif;
       background: linear-gradient(to bottom right, #ffe6f3, #e0f7ff);
       color: #444;
     }
@@ -68,10 +65,42 @@
       border-radius: 1rem;
       box-shadow: 0 3px 8px rgba(0,0,0,0.15);
       transition: transform 0.3s ease;
+      cursor: pointer;
     }
 
     .gallery img:hover {
       transform: scale(1.05);
+    }
+
+    /* 拡大用モーダル */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal img {
+      max-width: 90%;
+      max-height: 80%;
+      border-radius: 1rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+
+    .modal span {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      color: white;
+      font-size: 2rem;
+      cursor: pointer;
+      font-weight: bold;
     }
 
     footer {
@@ -91,13 +120,14 @@
 
   <nav>
     <a href="index.html">🏠 ホーム</a>
-    <a href="fan-araet.html" style="color:#d63a61;">🖼️ ギャラリー</a>
+    <a href="gallery.html" style="color:#d63a61;">🖼️ ギャラリー</a>
     <a href="index.html#submit">💌 投稿フォーム</a>
   </nav>
 
-  <section id="gallery">
+ <section id="gallery">
     <h2>✨ ファンのみんなのカービィ作品 ✨</h2>
     <div class="gallery">
+
       <img src="art1.png" alt="coming soon...">
       <img src="art2.png" alt="coming soon...">
       <img src="art3.png" alt="coming soon...">
@@ -201,8 +231,40 @@
     </div>
   </section>
 
+  <!-- モーダル（拡大表示） -->
+  <div id="modal" class="modal">
+    <span id="closeBtn">&times;</span>
+    <img id="modalImg" src="">
+  </div>
+
   <footer>
     © 2025 カービィのやさしい世界 | ファンによる非公式サイト
   </footer>
+
+  <script>
+    // 拡大用スクリプト
+    const modal = document.getElementById("modal");
+    const modalImg = document.getElementById("modalImg");
+    const closeBtn = document.getElementById("closeBtn");
+    const images = document.querySelectorAll(".gallery img");
+
+    images.forEach(img => {
+      img.addEventListener("click", () => {
+        modal.style.display = "flex";
+        modalImg.src = img.src;
+        modalImg.alt = img.alt;
+      });
+    });
+
+    closeBtn.addEventListener("click", () => {
+      modal.style.display = "none";
+    });
+
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) {
+        modal.style.display = "none";
+      }
+    });
+  </script>
 </body>
 </html>
