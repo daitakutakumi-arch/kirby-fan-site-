@@ -2,14 +2,15 @@
 <head>
   <link rel="icon" href="favicon.ico">
 </head>
-<html lang="ja">
+<html lang="ja" style="--bg-color: #ffa2c3;--accent-color: #ff9f9f;">
+<html style="--accent-color: #ff9f9f;">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kirby World</title>
 <style>
   :root {
-    --bg-color: #ffe8f0;
+    --bg-color: #ec4a83;
     --accent-color: #ffb6c1;
     --text-color: #333;
   }
@@ -27,12 +28,12 @@
     background: var(--accent-color);
     text-align: center;
     padding: 1.5em;
-    border-bottom: 4px solid #fff;
+    border-bottom: 4px solid #ffa0a0;
   }
 
   nav {
     text-align: center;
-    background: #fff;
+    background: #ff9f9f;
     padding: 0.5em;
     box-shadow: 0 3px 6px rgba(0,0,0,0.1);
   }
@@ -79,7 +80,7 @@
     background: var(--accent-color);
     text-align: center;
     padding: 1em;
-    color: #fff;
+    color: #ff9191;
   }
 
   #modal {
@@ -119,13 +120,20 @@
   }
 
   button {
+    background-color: #ff9f9f;
     background: var(--accent-color);
-    color: #ffa4a4;
+    color: #ffffff;
     cursor: pointer;
+    column-rule-style: var(--accent-color);
+    font-style: var(--bg-color);
+    
+  }
+  button:hover {
+    color: #ffffff;
   }
 
   button:hover {
-    background: #ffa7a7;
+    background: #ffa6a6;
   }
       header {
       background: #ffb6c1;
@@ -146,11 +154,11 @@
 </header>
 
 <nav>
-  <a href="https://www.kirby.jp/news/">ニュース</a>
-  <a href="#gallery">ギャラリー</a>
-  <a href="#cosplay">コスプレ</a>
-  <a href="#wallpaper">壁紙</a>
-  <a href="#submit">投稿フォーム</a>
+  <a href="https://www.kirby.jp/news/" style="background-color: #333;">ニュース</a>
+  <a href="#gallery" style="background-color: #333;">ギャラリー</a>
+  <a href="#cosplay" style="background-color: #333;">コスプレ</a>
+  <a href="#wallpaper" style="background-color: #333;">壁紙</a>
+  <a href="#submit" style="background-color: #333;">投稿フォーム</a>
 </nav>
 
 <main>
@@ -314,8 +322,10 @@
     document.documentElement.style.setProperty("--accent-color", "#ffcf6e");
   } else if ([9,10,11].includes(month)) {
     document.documentElement.style.setProperty("--bg-color", "#ffe8f0");
-    document.documentElement.style.setProperty("--accent-color", "##f8b538");
+    document.documentElement.style.setProperty("--accent-color", "#ffa2c3");
   }
+
 </script>
 </body>
+</html>
 </html>
