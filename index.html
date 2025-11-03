@@ -134,8 +134,9 @@
       }
 </style>
 </head>
-
 <body>
+
+
 <header>
   <h1>Kirby World</h1>
   <p>カービィファンのための情報サイト</p>
@@ -192,27 +193,28 @@
   <p style="text-align:center;">あなたのカービィ愛をみんなにシェアしよう！✨</p>
 
   <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSfODlSvFXqoy97o4uX5JW4NgnhaHcx_zcuhyxOQnpIHyJsMjQ/viewform?embedded=true"
-          width="100%" height="800" frameborder="0" marginheight="0" marginwidth="0"
+          width="100%" height="250" frameborder="0" marginheight="0" marginwidth="0"
           style="border-radius:1rem;box-shadow:0 3px 8px rgba(0,0,0,0.1);background:#fff;">
     読み込んでいます…
   </iframe>
 </section>
 <section class="card" id="kirby">
-  <div>
+  <div style="text-align: center;" id="kuini">
   <h2>カービィ</h2>
   <form action="https://www.kirby.jp/">
     <header>
   <a href="https://www.kirby.jp/">
-    <button href="https://www.kirby.jp/" style="font-size: 5em;">カービィのサイトへ</button>
+    <button href="https://www.kirby.jp/" style="font-size: 5em; size: 5cm;">カービィのサイトへ</button>
     </header>
   </form>
   </a>
 </div>
 </section>
+</main>
 
 
 <footer>
-  <p>© 2025 Kirby World</p>
+  <p id="gyuri">© 2025 Kirby World</p>
 </footer>
 
 <!-- 拡大表示モーダル -->
@@ -310,9 +312,9 @@
   } else if ([6,7,8].includes(month)) {
     document.documentElement.style.setProperty("--bg-color", "#fff6db");
     document.documentElement.style.setProperty("--accent-color", "#ffcf6e");
-  } else {
+  } else if ([9,10,11].includes(month)) {
     document.documentElement.style.setProperty("--bg-color", "#ffe8f0");
-    document.documentElement.style.setProperty("--accent-color", "#ffb6c1");
+    document.documentElement.style.setProperty("--accent-color", "##f8b538");
   }
 </script>
 </body>
