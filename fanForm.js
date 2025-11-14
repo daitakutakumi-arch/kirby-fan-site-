@@ -16,7 +16,7 @@ form.addEventListener("submit", async (e) => {
         method: "POST",
         headers: {
           "Accept": "application/vnd.github.everest-preview+json",
-          "Authorization": "token あなたのPAT"
+          "Authorization": "token ${PAT_TOKEN}"
         },
         body: JSON.stringify({
           event_type: "add_post",
@@ -32,4 +32,5 @@ form.addEventListener("submit", async (e) => {
     console.error(err);
   }
 });
+
 
