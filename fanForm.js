@@ -11,12 +11,12 @@ form.addEventListener("submit", async (e) => {
 
   try {
     await fetch(
-      `https://api.github.com/repos/daitakutakumi-arch/kirby-fan-site-/dispatches`,
+      `https://api.github.com/repos/daitakutakumi-arch.github.io/kirby-fan-site-/dispatches`,
       {
         method: "POST",
         headers: {
           "Accept": "application/vnd.github.everest-preview+json",
-          "Authorization": "token ${PAT_TOKEN}"
+          "Authorization": "token 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"
         },
         body: JSON.stringify({
           event_type: "add_post",
@@ -32,5 +32,3 @@ form.addEventListener("submit", async (e) => {
     console.error(err);
   }
 });
-
-
