@@ -11,7 +11,7 @@ form.addEventListener("submit", async (e) => {
 
   try {
     await fetch(
-      `https://api.github.com/repos/daitakutakumi-arch.github.io/kirby-fan-site-/dispatches`,
+      `https://api.github.com/repos/daitakutakumi-arch/kirby-fan-site-/dispatches`,
       {
         method: "POST",
         headers: {
@@ -32,3 +32,4 @@ form.addEventListener("submit", async (e) => {
     console.error(err);
   }
 });
+
