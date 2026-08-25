@@ -10,7 +10,6 @@
   <title>おはじきバトル vs BOT</title>
 
   <style>
-
     :root {
       --bg-color: #1a1a24;
       --panel-bg: #2a2a38;
@@ -48,9 +47,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-
       gap: 10px;
-
       width: 100%;
     }
 
@@ -163,17 +160,14 @@
 
     .color-btn.selected {
       border: 2px solid #ffdd59;
-
       transform: scale(1.2);
     }
-
   </style>
 </head>
 
 <body>
 
   <h1>おはじきバトル (vs BOT)</h1>
-
 
   <div class="game-container">
 
@@ -182,7 +176,6 @@
       width="400"
       height="400"
     ></canvas>
-
 
     <div class="ui-panel">
 
@@ -201,7 +194,6 @@
 
       </div>
 
-
       <div class="controls">
 
         <div>
@@ -217,14 +209,12 @@
 
         </div>
 
-
         <button
           class="btn-gacha"
           id="gachaBtn"
         >
           ガチャ (無料)
         </button>
-
 
         <button id="resetBtn">
           リセット
@@ -233,12 +223,10 @@
       </div>
 
     </div>
-
   </div>
 
 
 <script>
-
 
 // ========================================
 // DOM
@@ -277,15 +265,13 @@ const BOARD_R = 205;
 
 const CENTER = 200;
 
-
-// ★ 減速を強くした
-// 0.98 → 0.94
-const FRICTION = 0.94;
-
+// ★ ブレーキ強め
+const FRICTION = 0.88;
 
 const RESTITUTION = 0.9;
 
-const MAX_POWER = 18;
+// ★ 最大パワーを少しアップ
+const MAX_POWER = 20;
 
 
 // ========================================
@@ -293,7 +279,6 @@ const MAX_POWER = 18;
 // ========================================
 
 const allGachaColors = [
-
   "#ff4757",
   "#2ed573",
   "#1e90ff",
@@ -302,18 +287,13 @@ const allGachaColors = [
   "#eccc68",
   "#ff7ff3",
   "#70a1ff"
-
 ];
 
-
 let unlockedColors = [
-
   "#ff4757",
   "#1e90ff",
   "#2ed573"
-
 ];
-
 
 let playerColor = "#ff4757";
 
@@ -324,36 +304,23 @@ let playerColor = "#ff4757";
 
 let pieces = [];
 
-
-// プレイヤーが操作できるか
 let isPlayerTurn = true;
 
-
-// ドラッグ中か
 let isDragging = false;
 
-
-// 選択中のおはじき
 let selectedPiece = null;
 
-
-// ドラッグ位置
 let dragCurrentPos = {
   x: 0,
   y: 0
 };
 
-
-// どれかのおはじきが動いているか
 let isMoving = false;
-
 
 // BOTの攻撃待ち
 window.botPending = false;
 
-
-// ★ BOTがおはじきを撃った後か
-// BOTが動いている間はtrue
+// BOTが現在動いているか
 window.botMoving = false;
 
 
@@ -381,7 +348,6 @@ class Piece {
     this.color = color;
 
     this.isOut = false;
-
   }
 
 
@@ -391,50 +357,41 @@ class Piece {
       return;
     }
 
-
+    // 移動
     this.x += this.vx;
     this.y += this.vy;
 
-
-    // 摩擦
+    // ★ 強めのブレーキ
     this.vx *= FRICTION;
     this.vy *= FRICTION;
 
-
-    // ほぼ停止したら完全停止
+    // ★ ゆっくりした動きも早めに停止
     if (
       Math.hypot(
         this.vx,
         this.vy
-      ) < 0.05
+      ) < 0.12
     ) {
 
       this.vx = 0;
       this.vy = 0;
-
     }
 
-
-    // 盤面からの距離
+    // 盤面中心からの距離
     const distance =
       Math.hypot(
         this.x - CENTER,
         this.y - CENTER
       );
 
-
     // 盤面外
-    if (
-      distance > BOARD_R
-    ) {
+    if (distance > BOARD_R) {
 
       this.isOut = true;
 
       this.vx = 0;
       this.vy = 0;
-
     }
-
   }
 
 
@@ -444,9 +401,7 @@ class Piece {
       return;
     }
 
-
     ctx.save();
-
 
     // 本体
     ctx.beginPath();
@@ -459,11 +414,9 @@ class Piece {
       Math.PI * 2
     );
 
-    ctx.fillStyle =
-      this.color;
+    ctx.fillStyle = this.color;
 
     ctx.fill();
-
 
     // 枠
     ctx.lineWidth = 3;
@@ -474,7 +427,6 @@ class Piece {
         : "#333333";
 
     ctx.stroke();
-
 
     // 光沢
     ctx.beginPath();
@@ -492,11 +444,8 @@ class Piece {
 
     ctx.fill();
 
-
     ctx.restore();
-
   }
-
 }
 
 
@@ -521,16 +470,12 @@ function resolveCollisions() {
       const p1 = pieces[i];
       const p2 = pieces[j];
 
-
       if (
         p1.isOut ||
         p2.isOut
       ) {
-
         continue;
-
       }
-
 
       let dx =
         p2.x - p1.x;
@@ -544,26 +489,20 @@ function resolveCollisions() {
           dy
         );
 
-
-      if (
-        dist < R * 2
-      ) {
+      if (dist < R * 2) {
 
         if (dist === 0) {
           dist = 0.001;
         }
 
-
         const overlap =
           R * 2 - dist;
-
 
         const nx =
           dx / dist;
 
         const ny =
           dy / dist;
-
 
         // めり込み修正
         p1.x -=
@@ -572,13 +511,11 @@ function resolveCollisions() {
         p1.y -=
           ny * overlap / 2;
 
-
         p2.x +=
           nx * overlap / 2;
 
         p2.y +=
           ny * overlap / 2;
-
 
         const kx =
           p1.vx - p2.vx;
@@ -586,14 +523,12 @@ function resolveCollisions() {
         const ky =
           p1.vy - p2.vy;
 
-
         const p =
           2 *
           (
             nx * kx +
             ny * ky
           ) / 2;
-
 
         p1.vx -=
           p * nx *
@@ -603,7 +538,6 @@ function resolveCollisions() {
           p * ny *
           RESTITUTION;
 
-
         p2.vx +=
           p * nx *
           RESTITUTION;
@@ -611,13 +545,9 @@ function resolveCollisions() {
         p2.vy +=
           p * ny *
           RESTITUTION;
-
       }
-
     }
-
   }
-
 }
 
 
@@ -638,18 +568,15 @@ function drawArrow(
   const dy =
     startY - endY;
 
-
   const dist =
     Math.hypot(
       dx,
       dy
     );
 
-
   if (dist < 5) {
     return;
   }
-
 
   const angle =
     Math.atan2(
@@ -657,25 +584,21 @@ function drawArrow(
       dx
     );
 
-
   const arrowLength =
     Math.min(
       dist,
       120
     );
 
-
   const targetX =
     startX +
     Math.cos(angle) *
     arrowLength;
 
-
   const targetY =
     startY +
     Math.sin(angle) *
     arrowLength;
-
 
   const powerRatio =
     Math.min(
@@ -683,33 +606,27 @@ function drawArrow(
       1
     );
 
-
   const r =
     Math.floor(
       255 * powerRatio
     );
-
 
   const g =
     Math.floor(
       255 * (1 - powerRatio)
     );
 
-
   ctx.save();
-
 
   ctx.strokeStyle =
     `rgb(${r},${g},100)`;
 
-
   ctx.fillStyle =
     `rgb(${r},${g},100)`;
 
-
   ctx.lineWidth = 4;
 
-
+  // 軸
   ctx.beginPath();
 
   ctx.moveTo(
@@ -724,9 +641,8 @@ function drawArrow(
 
   ctx.stroke();
 
-
+  // 矢印
   const headLength = 12;
-
 
   ctx.beginPath();
 
@@ -735,7 +651,6 @@ function drawArrow(
     targetY
   );
 
-
   ctx.lineTo(
     targetX -
       headLength *
@@ -750,7 +665,6 @@ function drawArrow(
       )
   );
 
-
   ctx.lineTo(
     targetX -
       headLength *
@@ -764,15 +678,12 @@ function drawArrow(
         angle + Math.PI / 6
       )
   );
-
 
   ctx.closePath();
 
   ctx.fill();
 
-
   ctx.restore();
-
 }
 
 
@@ -783,7 +694,6 @@ function drawArrow(
 function initGame() {
 
   pieces = [];
-
 
   // プレイヤー4個
   for (
@@ -800,9 +710,7 @@ function initGame() {
         playerColor
       )
     );
-
   }
-
 
   // BOT4個
   for (
@@ -819,9 +727,7 @@ function initGame() {
         "#718093"
       )
     );
-
   }
-
 
   isPlayerTurn = true;
 
@@ -833,9 +739,7 @@ function initGame() {
 
   window.botMoving = false;
 
-
   updateUI();
-
 }
 
 
@@ -852,18 +756,12 @@ function gameLoop() {
     canvas.height
   );
 
-
   isMoving = false;
 
-
-  // ------------------------------------
   // おはじきを動かす
-  // ------------------------------------
-
   pieces.forEach(p => {
 
     p.update();
-
 
     if (
       Math.hypot(
@@ -873,32 +771,18 @@ function gameLoop() {
     ) {
 
       isMoving = true;
-
     }
-
   });
 
-
-  // ------------------------------------
   // 衝突
-  // ------------------------------------
-
   resolveCollisions();
 
-
-  // ------------------------------------
   // 描画
-  // ------------------------------------
-
   pieces.forEach(
     p => p.draw()
   );
 
-
-  // ------------------------------------
   // 狙い矢印
-  // ------------------------------------
-
   if (
     isDragging &&
     selectedPiece
@@ -910,21 +794,16 @@ function gameLoop() {
       dragCurrentPos.x,
       dragCurrentPos.y
     );
-
   }
 
 
   // ====================================
-  // 全部のおはじきが止まった
+  // 全おはじき停止後の処理
   // ====================================
 
   if (!isMoving) {
 
-
-    // ----------------------------------
     // BOT攻撃待ち
-    // ----------------------------------
-
     if (
       !isPlayerTurn &&
       window.botPending
@@ -932,8 +811,6 @@ function gameLoop() {
 
       window.botPending = false;
 
-
-      // 現在の残り数を確認
       const botCount =
         pieces.filter(
           p =>
@@ -941,85 +818,12 @@ function gameLoop() {
             !p.isOut
         ).length;
 
-
       const playerCount =
         pieces.filter(
           p =>
             p.isPlayer &&
             !p.isOut
         ).length;
-
-
-      // BOTが全滅
-      if (
-        botCount === 0
-      ) {
-
-        isPlayerTurn = true;
-
-        window.botMoving = false;
-
-        updateUI();
-
-      }
-
-
-      // プレイヤーが全滅
-      else if (
-        playerCount === 0
-      ) {
-
-        isPlayerTurn = true;
-
-        window.botMoving = false;
-
-        updateUI();
-
-      }
-
-
-      // 両方残っている
-      else {
-
-        // BOTをすぐ出す
-        setTimeout(
-          botMove,
-          50
-        );
-
-      }
-
-    }
-
-
-    // ----------------------------------
-    // ★ BOTの攻撃が終わった
-    // ----------------------------------
-
-    else if (
-      window.botMoving
-    ) {
-
-      // BOTのおはじきが完全停止した
-      window.botMoving = false;
-
-
-      // 最新の残り数を確認
-      const botCount =
-        pieces.filter(
-          p =>
-            !p.isPlayer &&
-            !p.isOut
-        ).length;
-
-
-      const playerCount =
-        pieces.filter(
-          p =>
-            p.isPlayer &&
-            !p.isOut
-        ).length;
-
 
       // BOT全滅
       if (
@@ -1028,8 +832,10 @@ function gameLoop() {
 
         isPlayerTurn = true;
 
-      }
+        window.botMoving = false;
 
+        updateUI();
+      }
 
       // プレイヤー全滅
       else if (
@@ -1038,39 +844,82 @@ function gameLoop() {
 
         isPlayerTurn = true;
 
-      }
+        window.botMoving = false;
 
+        updateUI();
+      }
 
       // 両方残っている
       else {
 
-        // ★ここで初めてプレイヤーターン
-        isPlayerTurn = true;
-
+        setTimeout(
+          botMove,
+          50
+        );
       }
-
     }
 
+
+    // BOTの攻撃終了
+    else if (
+      window.botMoving
+    ) {
+
+      window.botMoving = false;
+
+      const botCount =
+        pieces.filter(
+          p =>
+            !p.isPlayer &&
+            !p.isOut
+        ).length;
+
+      const playerCount =
+        pieces.filter(
+          p =>
+            p.isPlayer &&
+            !p.isOut
+        ).length;
+
+      // BOT全滅
+      if (
+        botCount === 0
+      ) {
+
+        isPlayerTurn = true;
+      }
+
+      // プレイヤー全滅
+      else if (
+        playerCount === 0
+      ) {
+
+        isPlayerTurn = true;
+      }
+
+      // 通常
+      else {
+
+        isPlayerTurn = true;
+      }
+    }
   }
 
 
   updateUI();
 
-
   requestAnimationFrame(
     gameLoop
   );
-
 }
 
 
 // ========================================
-// 超シンプルBOT
+// シンプルBOT
 // ========================================
 
 function botMove() {
 
-  // 最新の残りBOT
   const botPieces =
     pieces.filter(
       p =>
@@ -1078,8 +927,6 @@ function botMove() {
         !p.isOut
     );
 
-
-  // 最新の残りプレイヤー
   const playerPieces =
     pieces.filter(
       p =>
@@ -1088,10 +935,7 @@ function botMove() {
     );
 
 
-  // ------------------------------------
   // BOT全滅
-  // ------------------------------------
-
   if (
     botPieces.length === 0
   ) {
@@ -1105,14 +949,10 @@ function botMove() {
     updateUI();
 
     return;
-
   }
 
 
-  // ------------------------------------
   // プレイヤー全滅
-  // ------------------------------------
-
   if (
     playerPieces.length === 0
   ) {
@@ -1126,14 +966,10 @@ function botMove() {
     updateUI();
 
     return;
-
   }
 
 
-  // ------------------------------------
   // BOTのおはじきをランダム選択
-  // ------------------------------------
-
   const attacker =
     botPieces[
       Math.floor(
@@ -1143,10 +979,7 @@ function botMove() {
     ];
 
 
-  // ------------------------------------
   // プレイヤーのおはじきをランダム選択
-  // ------------------------------------
-
   const target =
     playerPieces[
       Math.floor(
@@ -1156,10 +989,7 @@ function botMove() {
     ];
 
 
-  // ------------------------------------
   // 発射方向
-  // ------------------------------------
-
   const angle =
     Math.atan2(
       target.y - attacker.y,
@@ -1167,10 +997,7 @@ function botMove() {
     );
 
 
-  // ------------------------------------
-  // BOTの攻撃力
-  // ------------------------------------
-
+  // BOTのパワー
   const power = 12;
 
 
@@ -1178,21 +1005,15 @@ function botMove() {
     Math.cos(angle) *
     power;
 
-
   attacker.vy =
     Math.sin(angle) *
     power;
 
 
-  // ★重要
-  // BOTが動いている間は
-  // プレイヤー操作を許可しない
+  // BOT移動中
   isPlayerTurn = false;
 
-
-  // BOT移動中フラグ
   window.botMoving = true;
-
 }
 
 
@@ -1205,22 +1026,18 @@ function getPos(e) {
   const rect =
     canvas.getBoundingClientRect();
 
-
   const scaleX =
     canvas.width /
     rect.width;
-
 
   const scaleY =
     canvas.height /
     rect.height;
 
-
   const point =
     e.touches
       ? e.touches[0]
       : e;
-
 
   return {
 
@@ -1229,14 +1046,11 @@ function getPos(e) {
         rect.left) *
       scaleX,
 
-
     y:
       (point.clientY -
         rect.top) *
       scaleY
-
   };
-
 }
 
 
@@ -1246,7 +1060,6 @@ function getPos(e) {
 
 function startDrag(e) {
 
-  // BOTが動いている間は操作不可
   if (
     !isPlayerTurn ||
     isMoving ||
@@ -1254,16 +1067,12 @@ function startDrag(e) {
   ) {
 
     return;
-
   }
-
 
   e.preventDefault();
 
-
   const pos =
     getPos(e);
-
 
   pieces.forEach(p => {
 
@@ -1281,11 +1090,8 @@ function startDrag(e) {
       selectedPiece = p;
 
       dragCurrentPos = pos;
-
     }
-
   });
-
 }
 
 
@@ -1299,13 +1105,10 @@ function moveDrag(e) {
     return;
   }
 
-
   e.preventDefault();
-
 
   dragCurrentPos =
     getPos(e);
-
 }
 
 
@@ -1319,12 +1122,9 @@ function endDrag(e) {
     return;
   }
 
-
   e.preventDefault();
 
-
   isDragging = false;
-
 
   if (!selectedPiece) {
     return;
@@ -1335,19 +1135,20 @@ function endDrag(e) {
     selectedPiece.x -
     dragCurrentPos.x;
 
-
   const dy =
     selectedPiece.y -
     dragCurrentPos.y;
 
 
+  // ★ 加速を少しアップ
   let power =
     Math.hypot(
       dx,
       dy
-    ) * 0.12;
+    ) * 0.18;
 
 
+  // ★ 最大パワー20
   power =
     Math.min(
       power,
@@ -1355,9 +1156,7 @@ function endDrag(e) {
     );
 
 
-  if (
-    power > 0
-  ) {
+  if (power > 0) {
 
     const angle =
       Math.atan2(
@@ -1370,7 +1169,6 @@ function endDrag(e) {
       Math.cos(angle) *
       power;
 
-
     selectedPiece.vy =
       Math.sin(angle) *
       power;
@@ -1379,15 +1177,12 @@ function endDrag(e) {
     // プレイヤーターン終了
     isPlayerTurn = false;
 
-
-    // BOT攻撃待ち
+    // BOT待ち
     window.botPending = true;
-
   }
 
 
   selectedPiece = null;
-
 }
 
 
@@ -1400,12 +1195,10 @@ canvas.addEventListener(
   startDrag
 );
 
-
 canvas.addEventListener(
   "mousemove",
   moveDrag
 );
-
 
 canvas.addEventListener(
   "mouseup",
@@ -1425,7 +1218,6 @@ canvas.addEventListener(
   }
 );
 
-
 canvas.addEventListener(
   "touchmove",
   moveDrag,
@@ -1433,7 +1225,6 @@ canvas.addEventListener(
     passive: false
   }
 );
-
 
 canvas.addEventListener(
   "touchend",
@@ -1450,14 +1241,12 @@ canvas.addEventListener(
 
 function updateUI() {
 
-  // 常に現在の数を数える
   const playerCount =
     pieces.filter(
       p =>
         p.isPlayer &&
         !p.isOut
     ).length;
-
 
   const botCount =
     pieces.filter(
@@ -1471,10 +1260,7 @@ function updateUI() {
     `あなた: ${playerCount} / BOT: ${botCount}`;
 
 
-  // ------------------------------------
   // 引き分け
-  // ------------------------------------
-
   if (
     playerCount === 0 &&
     botCount === 0
@@ -1485,14 +1271,10 @@ function updateUI() {
 
     turnStatus.style.color =
       "#eccc68";
-
   }
 
 
-  // ------------------------------------
   // プレイヤー勝利
-  // ------------------------------------
-
   else if (
     botCount === 0
   ) {
@@ -1502,14 +1284,10 @@ function updateUI() {
 
     turnStatus.style.color =
       "#2ed573";
-
   }
 
 
-  // ------------------------------------
   // BOT勝利
-  // ------------------------------------
-
   else if (
     playerCount === 0
   ) {
@@ -1519,14 +1297,10 @@ function updateUI() {
 
     turnStatus.style.color =
       "#eb3b5a";
-
   }
 
 
-  // ------------------------------------
   // 通常
-  // ------------------------------------
-
   else {
 
     turnStatus.innerText =
@@ -1539,9 +1313,7 @@ function updateUI() {
       isPlayerTurn
         ? "#4bcffa"
         : "#fffa65";
-
   }
-
 }
 
 
@@ -1583,30 +1355,23 @@ function renderColorPalette() {
 
         pieces.forEach(p => {
 
-          if (
-            p.isPlayer
-          ) {
+          if (p.isPlayer) {
 
             p.color =
               playerColor;
-
           }
-
         });
 
 
         renderColorPalette();
-
       };
 
 
       colorContainer.appendChild(
         btn
       );
-
     }
   );
-
 }
 
 
@@ -1632,7 +1397,6 @@ gachaBtn.onclick = () => {
     );
 
     return;
-
   }
 
 
@@ -1656,15 +1420,11 @@ gachaBtn.onclick = () => {
 
   pieces.forEach(p => {
 
-    if (
-      p.isPlayer
-    ) {
+    if (p.isPlayer) {
 
       p.color =
         playerColor;
-
     }
-
   });
 
 
@@ -1674,7 +1434,6 @@ gachaBtn.onclick = () => {
   alert(
     "新しい色を獲得しました！"
   );
-
 };
 
 
