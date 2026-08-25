@@ -273,12 +273,15 @@ const resetBtn =
 const R = 18;
 
 // おはじきが消える範囲
-// 元より少し大きくしている
 const BOARD_R = 205;
 
 const CENTER = 200;
 
-const FRICTION = 0.98;
+
+// ★ 減速を強くした
+// 0.98 → 0.94
+const FRICTION = 0.94;
+
 
 const RESTITUTION = 0.9;
 
@@ -321,26 +324,41 @@ let playerColor = "#ff4757";
 
 let pieces = [];
 
+
+// プレイヤーが操作できるか
 let isPlayerTurn = true;
 
+
+// ドラッグ中か
 let isDragging = false;
 
+
+// 選択中のおはじき
 let selectedPiece = null;
 
+
+// ドラッグ位置
 let dragCurrentPos = {
   x: 0,
   y: 0
 };
 
+
+// どれかのおはじきが動いているか
 let isMoving = false;
 
 
-// BOTの次の行動待ち
+// BOTの攻撃待ち
 window.botPending = false;
 
 
+// ★ BOTがおはじきを撃った後か
+// BOTが動いている間はtrue
+window.botMoving = false;
+
+
 // ========================================
-// おはじき
+// おはじきクラス
 // ========================================
 
 class Piece {
@@ -363,6 +381,7 @@ class Piece {
     this.color = color;
 
     this.isOut = false;
+
   }
 
 
@@ -377,11 +396,12 @@ class Piece {
     this.y += this.vy;
 
 
+    // 摩擦
     this.vx *= FRICTION;
     this.vy *= FRICTION;
 
 
-    // 動きがほぼ止まったら完全停止
+    // ほぼ停止したら完全停止
     if (
       Math.hypot(
         this.vx,
@@ -391,10 +411,11 @@ class Piece {
 
       this.vx = 0;
       this.vy = 0;
+
     }
 
 
-    // 盤面外へ出たか
+    // 盤面からの距離
     const distance =
       Math.hypot(
         this.x - CENTER,
@@ -402,13 +423,16 @@ class Piece {
       );
 
 
-    if (distance > BOARD_R) {
+    // 盤面外
+    if (
+      distance > BOARD_R
+    ) {
 
       this.isOut = true;
 
-      // 完全に停止
       this.vx = 0;
       this.vy = 0;
+
     }
 
   }
@@ -435,7 +459,8 @@ class Piece {
       Math.PI * 2
     );
 
-    ctx.fillStyle = this.color;
+    ctx.fillStyle =
+      this.color;
 
     ctx.fill();
 
@@ -469,6 +494,7 @@ class Piece {
 
 
     ctx.restore();
+
   }
 
 }
@@ -493,7 +519,6 @@ function resolveCollisions() {
     ) {
 
       const p1 = pieces[i];
-
       const p2 = pieces[j];
 
 
@@ -501,7 +526,9 @@ function resolveCollisions() {
         p1.isOut ||
         p2.isOut
       ) {
+
         continue;
+
       }
 
 
@@ -512,12 +539,16 @@ function resolveCollisions() {
         p2.y - p1.y;
 
       let dist =
-        Math.hypot(dx, dy);
+        Math.hypot(
+          dx,
+          dy
+        );
 
 
-      if (dist < R * 2) {
+      if (
+        dist < R * 2
+      ) {
 
-        // 完全に重なった場合
         if (dist === 0) {
           dist = 0.001;
         }
@@ -534,7 +565,7 @@ function resolveCollisions() {
           dy / dist;
 
 
-        // めり込みを修正
+        // めり込み修正
         p1.x -=
           nx * overlap / 2;
 
@@ -591,7 +622,7 @@ function resolveCollisions() {
 
 
 // ========================================
-// 狙い矢印
+// 矢印
 // ========================================
 
 function drawArrow(
@@ -609,7 +640,10 @@ function drawArrow(
 
 
   const dist =
-    Math.hypot(dx, dy);
+    Math.hypot(
+      dx,
+      dy
+    );
 
 
   if (dist < 5) {
@@ -618,11 +652,17 @@ function drawArrow(
 
 
   const angle =
-    Math.atan2(dy, dx);
+    Math.atan2(
+      dy,
+      dx
+    );
 
 
   const arrowLength =
-    Math.min(dist, 120);
+    Math.min(
+      dist,
+      120
+    );
 
 
   const targetX =
@@ -637,7 +677,6 @@ function drawArrow(
     arrowLength;
 
 
-  // パワーによって色を変更
   const powerRatio =
     Math.min(
       dist / 100,
@@ -663,6 +702,7 @@ function drawArrow(
   ctx.strokeStyle =
     `rgb(${r},${g},100)`;
 
+
   ctx.fillStyle =
     `rgb(${r},${g},100)`;
 
@@ -670,7 +710,6 @@ function drawArrow(
   ctx.lineWidth = 4;
 
 
-  // 軸
   ctx.beginPath();
 
   ctx.moveTo(
@@ -686,7 +725,6 @@ function drawArrow(
   ctx.stroke();
 
 
-  // 矢印
   const headLength = 12;
 
 
@@ -793,6 +831,8 @@ function initGame() {
 
   window.botPending = false;
 
+  window.botMoving = false;
+
 
   updateUI();
 
@@ -816,7 +856,10 @@ function gameLoop() {
   isMoving = false;
 
 
-  // 全おはじきを動かす
+  // ------------------------------------
+  // おはじきを動かす
+  // ------------------------------------
+
   pieces.forEach(p => {
 
     p.update();
@@ -836,17 +879,26 @@ function gameLoop() {
   });
 
 
+  // ------------------------------------
   // 衝突
+  // ------------------------------------
+
   resolveCollisions();
 
 
+  // ------------------------------------
   // 描画
+  // ------------------------------------
+
   pieces.forEach(
     p => p.draw()
   );
 
 
+  // ------------------------------------
   // 狙い矢印
+  // ------------------------------------
+
   if (
     isDragging &&
     selectedPiece
@@ -863,61 +915,139 @@ function gameLoop() {
 
 
   // ====================================
-  // BOTのターン処理
+  // 全部のおはじきが止まった
   // ====================================
 
-  if (
-    !isMoving &&
-    !isPlayerTurn &&
-    window.botPending
-  ) {
-
-    window.botPending = false;
+  if (!isMoving) {
 
 
-    // その時点での残り数を確認
-    const botCount =
-      pieces.filter(
-        p =>
-          !p.isPlayer &&
-          !p.isOut
-      ).length;
+    // ----------------------------------
+    // BOT攻撃待ち
+    // ----------------------------------
+
+    if (
+      !isPlayerTurn &&
+      window.botPending
+    ) {
+
+      window.botPending = false;
 
 
-    const playerCount =
-      pieces.filter(
-        p =>
-          p.isPlayer &&
-          !p.isOut
-      ).length;
+      // 現在の残り数を確認
+      const botCount =
+        pieces.filter(
+          p =>
+            !p.isPlayer &&
+            !p.isOut
+        ).length;
 
 
-    // BOTが全滅
-    if (botCount === 0) {
+      const playerCount =
+        pieces.filter(
+          p =>
+            p.isPlayer &&
+            !p.isOut
+        ).length;
 
-      isPlayerTurn = true;
 
-      updateUI();
+      // BOTが全滅
+      if (
+        botCount === 0
+      ) {
+
+        isPlayerTurn = true;
+
+        window.botMoving = false;
+
+        updateUI();
+
+      }
+
+
+      // プレイヤーが全滅
+      else if (
+        playerCount === 0
+      ) {
+
+        isPlayerTurn = true;
+
+        window.botMoving = false;
+
+        updateUI();
+
+      }
+
+
+      // 両方残っている
+      else {
+
+        // BOTをすぐ出す
+        setTimeout(
+          botMove,
+          50
+        );
+
+      }
 
     }
 
-    // プレイヤーが全滅
-    else if (playerCount === 0) {
 
-      isPlayerTurn = true;
+    // ----------------------------------
+    // ★ BOTの攻撃が終わった
+    // ----------------------------------
 
-      updateUI();
+    else if (
+      window.botMoving
+    ) {
 
-    }
+      // BOTのおはじきが完全停止した
+      window.botMoving = false;
 
-    // まだ両方残っている
-    else {
 
-      // ほぼ即BOTを出す
-      setTimeout(
-        botMove,
-        50
-      );
+      // 最新の残り数を確認
+      const botCount =
+        pieces.filter(
+          p =>
+            !p.isPlayer &&
+            !p.isOut
+        ).length;
+
+
+      const playerCount =
+        pieces.filter(
+          p =>
+            p.isPlayer &&
+            !p.isOut
+        ).length;
+
+
+      // BOT全滅
+      if (
+        botCount === 0
+      ) {
+
+        isPlayerTurn = true;
+
+      }
+
+
+      // プレイヤー全滅
+      else if (
+        playerCount === 0
+      ) {
+
+        isPlayerTurn = true;
+
+      }
+
+
+      // 両方残っている
+      else {
+
+        // ★ここで初めてプレイヤーターン
+        isPlayerTurn = true;
+
+      }
 
     }
 
@@ -940,10 +1070,7 @@ function gameLoop() {
 
 function botMove() {
 
-  // ====================================
-  // 最新の状態を確認
-  // ====================================
-
+  // 最新の残りBOT
   const botPieces =
     pieces.filter(
       p =>
@@ -952,6 +1079,7 @@ function botMove() {
     );
 
 
+  // 最新の残りプレイヤー
   const playerPieces =
     pieces.filter(
       p =>
@@ -960,9 +1088,9 @@ function botMove() {
     );
 
 
-  // ====================================
-  // BOTが0個
-  // ====================================
+  // ------------------------------------
+  // BOT全滅
+  // ------------------------------------
 
   if (
     botPieces.length === 0
@@ -970,17 +1098,20 @@ function botMove() {
 
     window.botPending = false;
 
+    window.botMoving = false;
+
     isPlayerTurn = true;
 
     updateUI();
 
     return;
+
   }
 
 
-  // ====================================
-  // プレイヤーが0個
-  // ====================================
+  // ------------------------------------
+  // プレイヤー全滅
+  // ------------------------------------
 
   if (
     playerPieces.length === 0
@@ -988,17 +1119,20 @@ function botMove() {
 
     window.botPending = false;
 
+    window.botMoving = false;
+
     isPlayerTurn = true;
 
     updateUI();
 
     return;
+
   }
 
 
-  // ====================================
+  // ------------------------------------
   // BOTのおはじきをランダム選択
-  // ====================================
+  // ------------------------------------
 
   const attacker =
     botPieces[
@@ -1009,9 +1143,9 @@ function botMove() {
     ];
 
 
-  // ====================================
+  // ------------------------------------
   // プレイヤーのおはじきをランダム選択
-  // ====================================
+  // ------------------------------------
 
   const target =
     playerPieces[
@@ -1022,9 +1156,9 @@ function botMove() {
     ];
 
 
-  // ====================================
-  // 即発射
-  // ====================================
+  // ------------------------------------
+  // 発射方向
+  // ------------------------------------
 
   const angle =
     Math.atan2(
@@ -1033,7 +1167,10 @@ function botMove() {
     );
 
 
-  // 強めに撃つ
+  // ------------------------------------
+  // BOTの攻撃力
+  // ------------------------------------
+
   const power = 12;
 
 
@@ -1047,8 +1184,14 @@ function botMove() {
     power;
 
 
-  // プレイヤーへターン
-  isPlayerTurn = true;
+  // ★重要
+  // BOTが動いている間は
+  // プレイヤー操作を許可しない
+  isPlayerTurn = false;
+
+
+  // BOT移動中フラグ
+  window.botMoving = true;
 
 }
 
@@ -1103,9 +1246,11 @@ function getPos(e) {
 
 function startDrag(e) {
 
+  // BOTが動いている間は操作不可
   if (
     !isPlayerTurn ||
-    isMoving
+    isMoving ||
+    window.botMoving
   ) {
 
     return;
@@ -1210,7 +1355,9 @@ function endDrag(e) {
     );
 
 
-  if (power > 0) {
+  if (
+    power > 0
+  ) {
 
     const angle =
       Math.atan2(
@@ -1229,11 +1376,11 @@ function endDrag(e) {
       power;
 
 
-    // プレイヤーのターン終了
+    // プレイヤーターン終了
     isPlayerTurn = false;
 
 
-    // BOT待ち
+    // BOT攻撃待ち
     window.botPending = true;
 
   }
@@ -1245,7 +1392,7 @@ function endDrag(e) {
 
 
 // ========================================
-// PCマウス操作
+// マウス操作
 // ========================================
 
 canvas.addEventListener(
@@ -1267,7 +1414,7 @@ canvas.addEventListener(
 
 
 // ========================================
-// スマホタッチ操作
+// スマホ操作
 // ========================================
 
 canvas.addEventListener(
@@ -1303,7 +1450,7 @@ canvas.addEventListener(
 
 function updateUI() {
 
-  // 現在の残り数を毎回計算
+  // 常に現在の数を数える
   const playerCount =
     pieces.filter(
       p =>
@@ -1324,9 +1471,9 @@ function updateUI() {
     `あなた: ${playerCount} / BOT: ${botCount}`;
 
 
-  // ====================================
-  // 勝敗
-  // ====================================
+  // ------------------------------------
+  // 引き分け
+  // ------------------------------------
 
   if (
     playerCount === 0 &&
@@ -1341,6 +1488,11 @@ function updateUI() {
 
   }
 
+
+  // ------------------------------------
+  // プレイヤー勝利
+  // ------------------------------------
+
   else if (
     botCount === 0
   ) {
@@ -1353,6 +1505,11 @@ function updateUI() {
 
   }
 
+
+  // ------------------------------------
+  // BOT勝利
+  // ------------------------------------
+
   else if (
     playerCount === 0
   ) {
@@ -1364,6 +1521,11 @@ function updateUI() {
       "#eb3b5a";
 
   }
+
+
+  // ------------------------------------
+  // 通常
+  // ------------------------------------
 
   else {
 
@@ -1421,7 +1583,9 @@ function renderColorPalette() {
 
         pieces.forEach(p => {
 
-          if (p.isPlayer) {
+          if (
+            p.isPlayer
+          ) {
 
             p.color =
               playerColor;
@@ -1468,6 +1632,7 @@ gachaBtn.onclick = () => {
     );
 
     return;
+
   }
 
 
@@ -1491,7 +1656,9 @@ gachaBtn.onclick = () => {
 
   pieces.forEach(p => {
 
-    if (p.isPlayer) {
+    if (
+      p.isPlayer
+    ) {
 
       p.color =
         playerColor;
@@ -1528,7 +1695,6 @@ renderColorPalette();
 initGame();
 
 gameLoop();
-
 
 </script>
 
