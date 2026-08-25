@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>おはじきバトル vs BOT</title>
+  <style>
+    :root { --bg-color:#1a1a24; --panel-bg:#2a2a38; --text:#fff; }
+    * { box-sizing:border-box; }
+    body {
+      margin:0; padding:10px; background:var(--bg-color); color:var(--text);
+      font-family:sans-serif; display:flex; flex-direction:column; align-items:center;
+      min-height:100vh; touch-action:manipulation;
+    }
+    h1 { margin:4px 0 8px; font-size:20px; }
+    .game-container { display:flex; flex-direction:column; align-items:center; gap:10px; width:100%; }
+    canvas {
+      width:min(92vw,400px); height:min(92vw,400px);
+      background:radial-gradient(circle,#3d3d52 0%,#1e1e28 100%);
+      border:6px solid #4a4a60; border-radius:50%;
+      box-shadow:0 10px 30px rgba(0,0,0,.5);
+      cursor:crosshair; touch-action:none;
+    }
+    .ui-panel {
+      background:var(--panel-bg); padding:12px; border-radius:8px;
+      width:min(380px,94vw); display:flex; flex-direction:column; gap:8px;
+      box-shadow:0 4px 10px rgba(0,0,0,.3);
+    }
+    .status-bar { display:flex; justify-content:space-between; font-size:14px; font-weight:bold; gap:8px; }
+    .controls { display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; }
+    button { background:#4b6584; color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; font-weight:bold; }
+    button:disabled { opacity:.5; cursor:not-allowed; }
+    .btn-gacha { background:#eb3b5a; }
+    .color-select { display:flex; gap:7px; align-items:center; margin-top:4px; }
+    .color-btn { width:24px; height:24px; border-radius:50%; border:2px solid #fff; cursor:pointer; }
+    .color-btn.selected { border:2px solid #ffdd59; transform:scale(1.2); }
+  </style>
+</head>
+<body>
+<h1>おはじきバトル (vs BOT)</h1>
+<div class="game-container">
+  <canvas id="gameCanvas" width="400" height="400"></canvas>
+  <div class="ui-panel">
+    <div class="status-bar">
+      <span id="turnStatus" style="color:#4bcffa;">プレイヤーのターン</span>
+      <span id="scoreStatus">あなた: 4 / BOT: 4</span>
+    </div>
+    <div class="controls">
+      <div>
+        <span style="font-size:12px;">所持カラー:</span>
+        <div class="color-select" id="colorContainer"></div>
+      </div>
+      <button class="btn-gacha" id="gachaBtn">ガチャ (無料)</button>
+      <button id="resetBtn">リセット</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const canvas=document.getElementById('gameCanvas'),ctx=canvas.getContext('2d');
+const turnStatus=document.getElementById('turnStatus'),scoreStatus=document.getElementById('scoreStatus');
+const colorContainer=document.getElementById('colorContainer'),gachaBtn=document.getElementById('gachaBtn'),resetBtn=document.getElementById('resetBtn');
+const R=18,BOARD_R=194,CENTER=200,FRICTION=.98,RESTITUTION=.9,MAX_POWER=18;
+const allGachaColors=['#ff4757','#2ed573','#1e90ff','#ffa502','#9b59b6','#eccc68','#ff7ff3','#70a1ff'];
+let unlockedColors=['#ff4757','#1e90ff','#2ed573'],playerColor='#ff4757';
+let pieces=[],isPlayerTurn=true,isDragging=false,selectedPiece=null,dragCurrentPos={x:0,y:0},isMoving=false;
+
+class Piece{
+  constructor(x,y,isPlayer,color){this.x=x;this.y=y;this.vx=0;this.vy=0;this.isPlayer=isPlayer;this.color=color;this.isOut=false;}
+  update(){
+    if(this.isOut)return;
+    this.x+=this.vx;this.y+=this.vy;this.vx*=FRICTION;this.vy*=FRICTION;
+    if(Math.hypot(this.vx,this.vy)<.05)this.vx=this.vy=0;
+    if(Math.hypot(this.x-CENTER,this.y-CENTER)>BOARD_R)this.isOut=true;
+  }
+  draw(){
+    if(this.isOut)return;
+    ctx.save();ctx.beginPath();ctx.arc(this.x,this.y,R,0,Math.PI*2);ctx.fillStyle=this.color;ctx.fill();
+    ctx.lineWidth=3;ctx.strokeStyle=this.isPlayer?'#fff':'#333';ctx.stroke();
+    ctx.beginPath();ctx.arc(this.x-R*.3,this.y-R*.3,R*.3,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,.4)';ctx.fill();ctx.restore();
+  }
+}
+function resolveCollisions(){
+  for(let i=0;i<pieces.length;i++)for(let j=i+1;j<pieces.length;j++){
+    const p1=pieces[i],p2=pieces[j];if(p1.isOut||p2.isOut)continue;
+    let dx=p2.x-p1.x,dy=p2.y-p1.y,dist=Math.hypot(dx,dy);
+    if(dist<R*2){
+      if(dist===0)dist=.001;
+      const overlap=R*2-dist,nx=dx/dist,ny=dy/dist;
+      p1.x-=nx*overlap/2;p1.y-=ny*overlap/2;p2.x+=nx*overlap/2;p2.y+=ny*overlap/2;
+      const kx=p1.vx-p2.vx,ky=p1.vy-p2.vy,p=2*(nx*kx+ny*ky)/2;
+      p1.vx-=p*nx*RESTITUTION;p1.vy-=p*ny*RESTITUTION;p2.vx+=p*nx*RESTITUTION;p2.vy+=p*ny*RESTITUTION;
+    }
+  }
+}
+function drawArrow(sx,sy,ex,ey){
+  const dx=sx-ex,dy=sy-ey,dist=Math.hypot(dx,dy);if(dist<5)return;
+  const angle=Math.atan2(dy,dx),len=Math.min(dist,120),tx=sx+Math.cos(angle)*len,ty=sy+Math.sin(angle)*len;
+  const ratio=Math.min(dist/100,1),r=Math.floor(255*ratio),g=Math.floor(255*(1-ratio));
+  ctx.save();ctx.strokeStyle=ctx.fillStyle=`rgb(${r},${g},100)`;ctx.lineWidth=4;
+  ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(tx,ty);ctx.stroke();
+  const h=12;ctx.beginPath();ctx.moveTo(tx,ty);
+  ctx.lineTo(tx-h*Math.cos(angle-Math.PI/6),ty-h*Math.sin(angle-Math.PI/6));
+  ctx.lineTo(tx-h*Math.cos(angle+Math.PI/6),ty-h*Math.sin(angle+Math.PI/6));ctx.closePath();ctx.fill();ctx.restore();
+}
+function initGame(){
+  pieces=[];
+  for(let i=0;i<4;i++)pieces.push(new Piece(110+i*60,320,true,playerColor));
+  for(let i=0;i<4;i++)pieces.push(new Piece(110+i*60,80,false,'#718093'));
+  isPlayerTurn=true;window.botPending=false;updateUI();
+}
+function gameLoop(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);isMoving=false;
+  pieces.forEach(p=>{p.update();if(Math.hypot(p.vx,p.vy)>0)isMoving=true;});
+  resolveCollisions();pieces.forEach(p=>p.draw());
+  if(isDragging&&selectedPiece)drawArrow(selectedPiece.x,selectedPiece.y,dragCurrentPos.x,dragCurrentPos.y);
+  if(!isMoving&&!isPlayerTurn&&window.botPending){window.botPending=false;setTimeout(botMove,500);}
+  updateUI();requestAnimationFrame(gameLoop);
+}
+function botMove(){
+  const bots=pieces.filter(p=>!p.isPlayer&&!p.isOut),players=pieces.filter(p=>p.isPlayer&&!p.isOut);
+  if(!bots.length||!players.length)return;
+  const attacker=bots[Math.floor(Math.random()*bots.length)];
+  let target=players[0],min=Infinity;
+  players.forEach(p=>{const d=Math.hypot(p.x-attacker.x,p.y-attacker.y);if(d<min){min=d;target=p;}});
+  const angle=Math.atan2(target.y-attacker.y,target.x-attacker.x);
+  attacker.vx=Math.cos(angle)*10;attacker.vy=Math.sin(angle)*10;isPlayerTurn=true;
+}
+function getPos(e){
+  const rect=canvas.getBoundingClientRect(),scaleX=canvas.width/rect.width,scaleY=canvas.height/rect.height;
+  const c=e.touches?e.touches[0]:e;
+  return {x:(c.clientX-rect.left)*scaleX,y:(c.clientY-rect.top)*scaleY};
+}
+function startDrag(e){
+  if(!isPlayerTurn||isMoving)return;e.preventDefault();const pos=getPos(e);
+  pieces.forEach(p=>{if(p.isPlayer&&!p.isOut&&Math.hypot(p.x-pos.x,p.y-pos.y)<R){isDragging=true;selectedPiece=p;dragCurrentPos=pos;}});
+}
+function moveDrag(e){if(!isDragging)return;e.preventDefault();dragCurrentPos=getPos(e);}
+function endDrag(e){
+  if(!isDragging)return;e.preventDefault();isDragging=false;
+  if(!selectedPiece)return;
+  const dx=selectedPiece.x-dragCurrentPos.x,dy=selectedPiece.y-dragCurrentPos.y;
+  let power=Math.min(Math.hypot(dx,dy)*.12,MAX_POWER);
+  if(power>0){const angle=Math.atan2(dy,dx);selectedPiece.vx=Math.cos(angle)*power;selectedPiece.vy=Math.sin(angle)*power;isPlayerTurn=false;window.botPending=true;}
+  selectedPiece=null;
+}
+canvas.addEventListener('mousedown',startDrag);canvas.addEventListener('mousemove',moveDrag);canvas.addEventListener('mouseup',endDrag);
+canvas.addEventListener('touchstart',startDrag,{passive:false});canvas.addEventListener('touchmove',moveDrag,{passive:false});canvas.addEventListener('touchend',endDrag,{passive:false});
+function updateUI(){
+  const pc=pieces.filter(p=>p.isPlayer&&!p.isOut).length,bc=pieces.filter(p=>!p.isPlayer&&!p.isOut).length;
+  scoreStatus.innerText=`あなた: ${pc} / BOT: ${bc}`;
+  if(pc===0||bc===0){turnStatus.innerText=pc>0?'あなたの勝利！':'BOTの勝利...';turnStatus.style.color=pc>0?'#2ed573':'#eb3b5a';}
+  else{turnStatus.innerText=isPlayerTurn?'プレイヤーのターン':'BOTのターン思考中...';turnStatus.style.color=isPlayerTurn?'#4bcffa':'#fffa65';}
+}
+function renderColorPalette(){
+  colorContainer.innerHTML='';
+  unlockedColors.forEach(color=>{
+    const btn=document.createElement('div');btn.className=`color-btn ${color===playerColor?'selected':''}`;btn.style.backgroundColor=color;
+    btn.onclick=()=>{playerColor=color;pieces.forEach(p=>{if(p.isPlayer)p.color=playerColor;});renderColorPalette();};colorContainer.appendChild(btn);
+  });
+}
+gachaBtn.onclick=()=>{
+  const locked=allGachaColors.filter(c=>!unlockedColors.includes(c));
+  if(!locked.length){alert('すべての色を獲得済みです！');return;}
+  const newColor=locked[Math.floor(Math.random()*locked.length)];unlockedColors.push(newColor);playerColor=newColor;
+  pieces.forEach(p=>{if(p.isPlayer)p.color=playerColor;});renderColorPalette();alert('新しい色を獲得しました！');
+};
+resetBtn.onclick=initGame;renderColorPalette();initGame();gameLoop();
+</script>
+</body>
+</html>
