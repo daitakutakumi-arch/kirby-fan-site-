@@ -2,9 +2,15 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, user-scalable=no"
+  >
+
   <title>おはじきバトル vs BOT</title>
+
   <style>
+
     :root {
       --bg-color: #1a1a24;
       --panel-bg: #2a2a38;
@@ -18,13 +24,18 @@
     body {
       margin: 0;
       padding: 10px;
+
       background: var(--bg-color);
       color: var(--text);
+
       font-family: sans-serif;
+
       display: flex;
       flex-direction: column;
       align-items: center;
+
       min-height: 100vh;
+
       touch-action: manipulation;
     }
 
@@ -37,59 +48,86 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+
       gap: 10px;
+
       width: 100%;
     }
 
     canvas {
       width: min(92vw, 400px);
       height: min(92vw, 400px);
-      background: radial-gradient(
-        circle,
-        #3d3d52 0%,
-        #1e1e28 100%
-      );
+
+      background:
+        radial-gradient(
+          circle,
+          #3d3d52 0%,
+          #1e1e28 100%
+        );
+
       border: 6px solid #4a4a60;
       border-radius: 50%;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+
+      box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.5);
+
       cursor: crosshair;
+
       touch-action: none;
     }
 
     .ui-panel {
       background: var(--panel-bg);
+
       padding: 12px;
+
       border-radius: 8px;
+
       width: min(380px, 94vw);
+
       display: flex;
       flex-direction: column;
+
       gap: 8px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+
+      box-shadow:
+        0 4px 10px rgba(0, 0, 0, 0.3);
     }
 
     .status-bar {
       display: flex;
       justify-content: space-between;
+
       font-size: 14px;
       font-weight: bold;
+
       gap: 8px;
     }
 
     .controls {
       display: flex;
+
       justify-content: space-between;
       align-items: center;
+
       gap: 8px;
+
       flex-wrap: wrap;
     }
 
     button {
       background: #4b6584;
+
       color: white;
+
       border: none;
+
       padding: 8px 12px;
+
       border-radius: 4px;
+
       cursor: pointer;
+
       font-weight: bold;
     }
 
@@ -104,23 +142,31 @@
 
     .color-select {
       display: flex;
+
       gap: 7px;
+
       align-items: center;
+
       margin-top: 4px;
     }
 
     .color-btn {
       width: 24px;
       height: 24px;
+
       border-radius: 50%;
-      border: 2px solid #fff;
+
+      border: 2px solid white;
+
       cursor: pointer;
     }
 
     .color-btn.selected {
       border: 2px solid #ffdd59;
+
       transform: scale(1.2);
     }
+
   </style>
 </head>
 
@@ -128,88 +174,106 @@
 
   <h1>おはじきバトル (vs BOT)</h1>
 
+
   <div class="game-container">
 
     <canvas
       id="gameCanvas"
       width="400"
-      height="400">
-    </canvas>
+      height="400"
+    ></canvas>
+
 
     <div class="ui-panel">
 
       <div class="status-bar">
+
         <span
           id="turnStatus"
-          style="color:#4bcffa;">
+          style="color:#4bcffa;"
+        >
           プレイヤーのターン
         </span>
 
         <span id="scoreStatus">
           あなた: 4 / BOT: 4
         </span>
+
       </div>
+
 
       <div class="controls">
 
         <div>
+
           <span style="font-size:12px;">
             所持カラー:
           </span>
 
           <div
             class="color-select"
-            id="colorContainer">
-          </div>
+            id="colorContainer"
+          ></div>
+
         </div>
+
 
         <button
           class="btn-gacha"
-          id="gachaBtn">
+          id="gachaBtn"
+        >
           ガチャ (無料)
         </button>
+
 
         <button id="resetBtn">
           リセット
         </button>
 
       </div>
+
     </div>
+
   </div>
 
 
 <script>
 
+
+// ========================================
+// DOM
+// ========================================
+
 const canvas =
-  document.getElementById('gameCanvas');
+  document.getElementById("gameCanvas");
 
 const ctx =
-  canvas.getContext('2d');
+  canvas.getContext("2d");
 
 const turnStatus =
-  document.getElementById('turnStatus');
+  document.getElementById("turnStatus");
 
 const scoreStatus =
-  document.getElementById('scoreStatus');
+  document.getElementById("scoreStatus");
 
 const colorContainer =
-  document.getElementById('colorContainer');
+  document.getElementById("colorContainer");
 
 const gachaBtn =
-  document.getElementById('gachaBtn');
+  document.getElementById("gachaBtn");
 
 const resetBtn =
-  document.getElementById('resetBtn');
+  document.getElementById("resetBtn");
 
 
-// ============================
+// ========================================
 // ゲーム設定
-// ============================
+// ========================================
 
 const R = 18;
 
 // おはじきが消える範囲
-// 元の194より少し広くして205
+// 元より少し大きくしている
 const BOARD_R = 205;
 
 const CENTER = 200;
@@ -221,33 +285,39 @@ const RESTITUTION = 0.9;
 const MAX_POWER = 18;
 
 
-// ============================
+// ========================================
 // カラー
-// ============================
+// ========================================
 
 const allGachaColors = [
-  '#ff4757',
-  '#2ed573',
-  '#1e90ff',
-  '#ffa502',
-  '#9b59b6',
-  '#eccc68',
-  '#ff7ff3',
-  '#70a1ff'
+
+  "#ff4757",
+  "#2ed573",
+  "#1e90ff",
+  "#ffa502",
+  "#9b59b6",
+  "#eccc68",
+  "#ff7ff3",
+  "#70a1ff"
+
 ];
+
 
 let unlockedColors = [
-  '#ff4757',
-  '#1e90ff',
-  '#2ed573'
+
+  "#ff4757",
+  "#1e90ff",
+  "#2ed573"
+
 ];
 
-let playerColor = '#ff4757';
+
+let playerColor = "#ff4757";
 
 
-// ============================
+// ========================================
 // ゲーム状態
-// ============================
+// ========================================
 
 let pieces = [];
 
@@ -264,16 +334,23 @@ let dragCurrentPos = {
 
 let isMoving = false;
 
+
+// BOTの次の行動待ち
 window.botPending = false;
 
 
-// ============================
-// おはじきクラス
-// ============================
+// ========================================
+// おはじき
+// ========================================
 
 class Piece {
 
-  constructor(x, y, isPlayer, color) {
+  constructor(
+    x,
+    y,
+    isPlayer,
+    color
+  ) {
 
     this.x = x;
     this.y = y;
@@ -291,26 +368,33 @@ class Piece {
 
   update() {
 
-    if (this.isOut) return;
+    if (this.isOut) {
+      return;
+    }
+
 
     this.x += this.vx;
     this.y += this.vy;
+
 
     this.vx *= FRICTION;
     this.vy *= FRICTION;
 
 
+    // 動きがほぼ止まったら完全停止
     if (
       Math.hypot(
         this.vx,
         this.vy
       ) < 0.05
     ) {
+
       this.vx = 0;
       this.vy = 0;
     }
 
 
+    // 盤面外へ出たか
     const distance =
       Math.hypot(
         this.x - CENTER,
@@ -319,17 +403,28 @@ class Piece {
 
 
     if (distance > BOARD_R) {
+
       this.isOut = true;
+
+      // 完全に停止
+      this.vx = 0;
+      this.vy = 0;
     }
+
   }
 
 
   draw() {
 
-    if (this.isOut) return;
+    if (this.isOut) {
+      return;
+    }
+
 
     ctx.save();
 
+
+    // 本体
     ctx.beginPath();
 
     ctx.arc(
@@ -345,12 +440,13 @@ class Piece {
     ctx.fill();
 
 
+    // 枠
     ctx.lineWidth = 3;
 
     ctx.strokeStyle =
       this.isPlayer
-        ? '#ffffff'
-        : '#333333';
+        ? "#ffffff"
+        : "#333333";
 
     ctx.stroke();
 
@@ -367,18 +463,20 @@ class Piece {
     );
 
     ctx.fillStyle =
-      'rgba(255,255,255,0.4)';
+      "rgba(255,255,255,0.4)";
 
     ctx.fill();
 
+
     ctx.restore();
   }
+
 }
 
 
-// ============================
+// ========================================
 // 衝突処理
-// ============================
+// ========================================
 
 function resolveCollisions() {
 
@@ -395,6 +493,7 @@ function resolveCollisions() {
     ) {
 
       const p1 = pieces[i];
+
       const p2 = pieces[j];
 
 
@@ -418,7 +517,7 @@ function resolveCollisions() {
 
       if (dist < R * 2) {
 
-        // 完全に重なった場合の対策
+        // 完全に重なった場合
         if (dist === 0) {
           dist = 0.001;
         }
@@ -435,11 +534,13 @@ function resolveCollisions() {
           dy / dist;
 
 
+        // めり込みを修正
         p1.x -=
           nx * overlap / 2;
 
         p1.y -=
           ny * overlap / 2;
+
 
         p2.x +=
           nx * overlap / 2;
@@ -479,15 +580,19 @@ function resolveCollisions() {
         p2.vy +=
           p * ny *
           RESTITUTION;
+
       }
+
     }
+
   }
+
 }
 
 
-// ============================
-// 矢印
-// ============================
+// ========================================
+// 狙い矢印
+// ========================================
 
 function drawArrow(
   startX,
@@ -507,7 +612,9 @@ function drawArrow(
     Math.hypot(dx, dy);
 
 
-  if (dist < 5) return;
+  if (dist < 5) {
+    return;
+  }
 
 
   const angle =
@@ -530,6 +637,7 @@ function drawArrow(
     arrowLength;
 
 
+  // パワーによって色を変更
   const powerRatio =
     Math.min(
       dist / 100,
@@ -541,6 +649,7 @@ function drawArrow(
     Math.floor(
       255 * powerRatio
     );
+
 
   const g =
     Math.floor(
@@ -561,6 +670,7 @@ function drawArrow(
   ctx.lineWidth = 4;
 
 
+  // 軸
   ctx.beginPath();
 
   ctx.moveTo(
@@ -576,6 +686,7 @@ function drawArrow(
   ctx.stroke();
 
 
+  // 矢印
   const headLength = 12;
 
 
@@ -621,20 +732,22 @@ function drawArrow(
 
   ctx.fill();
 
+
   ctx.restore();
+
 }
 
 
-// ============================
-// 初期化
-// ============================
+// ========================================
+// ゲーム初期化
+// ========================================
 
 function initGame() {
 
   pieces = [];
 
 
-  // プレイヤー
+  // プレイヤー4個
   for (
     let i = 0;
     i < 4;
@@ -649,10 +762,11 @@ function initGame() {
         playerColor
       )
     );
+
   }
 
 
-  // BOT
+  // BOT4個
   for (
     let i = 0;
     i < 4;
@@ -664,23 +778,30 @@ function initGame() {
         110 + i * 60,
         80,
         false,
-        '#718093'
+        "#718093"
       )
     );
+
   }
 
 
   isPlayerTurn = true;
 
+  isDragging = false;
+
+  selectedPiece = null;
+
   window.botPending = false;
 
+
   updateUI();
+
 }
 
 
-// ============================
+// ========================================
 // ゲームループ
-// ============================
+// ========================================
 
 function gameLoop() {
 
@@ -695,6 +816,7 @@ function gameLoop() {
   isMoving = false;
 
 
+  // 全おはじきを動かす
   pieces.forEach(p => {
 
     p.update();
@@ -708,20 +830,23 @@ function gameLoop() {
     ) {
 
       isMoving = true;
+
     }
 
   });
 
 
+  // 衝突
   resolveCollisions();
 
 
+  // 描画
   pieces.forEach(
     p => p.draw()
   );
 
 
-  // プレイヤーの狙い矢印
+  // 狙い矢印
   if (
     isDragging &&
     selectedPiece
@@ -733,10 +858,14 @@ function gameLoop() {
       dragCurrentPos.x,
       dragCurrentPos.y
     );
+
   }
 
 
-  // BOT開始
+  // ====================================
+  // BOTのターン処理
+  // ====================================
+
   if (
     !isMoving &&
     !isPlayerTurn &&
@@ -745,27 +874,75 @@ function gameLoop() {
 
     window.botPending = false;
 
-    // BOTの待ち時間を短縮
-    setTimeout(
-      botMove,
-      50
-    );
+
+    // その時点での残り数を確認
+    const botCount =
+      pieces.filter(
+        p =>
+          !p.isPlayer &&
+          !p.isOut
+      ).length;
+
+
+    const playerCount =
+      pieces.filter(
+        p =>
+          p.isPlayer &&
+          !p.isOut
+      ).length;
+
+
+    // BOTが全滅
+    if (botCount === 0) {
+
+      isPlayerTurn = true;
+
+      updateUI();
+
+    }
+
+    // プレイヤーが全滅
+    else if (playerCount === 0) {
+
+      isPlayerTurn = true;
+
+      updateUI();
+
+    }
+
+    // まだ両方残っている
+    else {
+
+      // ほぼ即BOTを出す
+      setTimeout(
+        botMove,
+        50
+      );
+
+    }
+
   }
 
 
   updateUI();
 
+
   requestAnimationFrame(
     gameLoop
   );
+
 }
 
 
-// ============================
+// ========================================
 // 超シンプルBOT
-// ============================
+// ========================================
 
 function botMove() {
+
+  // ====================================
+  // 最新の状態を確認
+  // ====================================
 
   const botPieces =
     pieces.filter(
@@ -783,15 +960,46 @@ function botMove() {
     );
 
 
+  // ====================================
+  // BOTが0個
+  // ====================================
+
   if (
-    botPieces.length === 0 ||
-    playerPieces.length === 0
+    botPieces.length === 0
   ) {
+
+    window.botPending = false;
+
+    isPlayerTurn = true;
+
+    updateUI();
+
     return;
   }
 
 
+  // ====================================
+  // プレイヤーが0個
+  // ====================================
+
+  if (
+    playerPieces.length === 0
+  ) {
+
+    window.botPending = false;
+
+    isPlayerTurn = true;
+
+    updateUI();
+
+    return;
+  }
+
+
+  // ====================================
   // BOTのおはじきをランダム選択
+  // ====================================
+
   const attacker =
     botPieces[
       Math.floor(
@@ -801,7 +1009,10 @@ function botMove() {
     ];
 
 
+  // ====================================
   // プレイヤーのおはじきをランダム選択
+  // ====================================
+
   const target =
     playerPieces[
       Math.floor(
@@ -811,7 +1022,10 @@ function botMove() {
     ];
 
 
-  // 標的方向へ即発射
+  // ====================================
+  // 即発射
+  // ====================================
+
   const angle =
     Math.atan2(
       target.y - attacker.y,
@@ -819,7 +1033,7 @@ function botMove() {
     );
 
 
-  // 強めに発射して早く決着
+  // 強めに撃つ
   const power = 12;
 
 
@@ -827,20 +1041,21 @@ function botMove() {
     Math.cos(angle) *
     power;
 
+
   attacker.vy =
     Math.sin(angle) *
     power;
 
 
-  // 即プレイヤーのターンへ
+  // プレイヤーへターン
   isPlayerTurn = true;
+
 }
 
 
-// ============================
+// ========================================
 // 座標取得
-// スマホ対応
-// ============================
+// ========================================
 
 function getPos(e) {
 
@@ -851,6 +1066,7 @@ function getPos(e) {
   const scaleX =
     canvas.width /
     rect.width;
+
 
   const scaleY =
     canvas.height /
@@ -867,21 +1083,23 @@ function getPos(e) {
 
     x:
       (point.clientX -
-       rect.left) *
+        rect.left) *
       scaleX,
+
 
     y:
       (point.clientY -
-       rect.top) *
+        rect.top) *
       scaleY
 
   };
+
 }
 
 
-// ============================
+// ========================================
 // ドラッグ開始
-// ============================
+// ========================================
 
 function startDrag(e) {
 
@@ -889,7 +1107,9 @@ function startDrag(e) {
     !isPlayerTurn ||
     isMoving
   ) {
+
     return;
+
   }
 
 
@@ -920,33 +1140,43 @@ function startDrag(e) {
     }
 
   });
+
 }
 
 
-// ============================
+// ========================================
 // ドラッグ中
-// ============================
+// ========================================
 
 function moveDrag(e) {
 
-  if (!isDragging) return;
+  if (!isDragging) {
+    return;
+  }
+
 
   e.preventDefault();
+
 
   dragCurrentPos =
     getPos(e);
+
 }
 
 
-// ============================
+// ========================================
 // 発射
-// ============================
+// ========================================
 
 function endDrag(e) {
 
-  if (!isDragging) return;
+  if (!isDragging) {
+    return;
+  }
+
 
   e.preventDefault();
+
 
   isDragging = false;
 
@@ -999,65 +1229,81 @@ function endDrag(e) {
       power;
 
 
+    // プレイヤーのターン終了
     isPlayerTurn = false;
 
+
+    // BOT待ち
     window.botPending = true;
+
   }
 
 
   selectedPiece = null;
+
 }
 
 
-// ============================
-// マウス操作
-// ============================
+// ========================================
+// PCマウス操作
+// ========================================
 
 canvas.addEventListener(
-  'mousedown',
+  "mousedown",
   startDrag
 );
 
+
 canvas.addEventListener(
-  'mousemove',
+  "mousemove",
   moveDrag
 );
 
+
 canvas.addEventListener(
-  'mouseup',
+  "mouseup",
   endDrag
 );
 
 
-// ============================
-// スマホ操作
-// ============================
+// ========================================
+// スマホタッチ操作
+// ========================================
 
 canvas.addEventListener(
-  'touchstart',
+  "touchstart",
   startDrag,
-  { passive: false }
+  {
+    passive: false
+  }
 );
 
+
 canvas.addEventListener(
-  'touchmove',
+  "touchmove",
   moveDrag,
-  { passive: false }
+  {
+    passive: false
+  }
 );
+
 
 canvas.addEventListener(
-  'touchend',
+  "touchend",
   endDrag,
-  { passive: false }
+  {
+    passive: false
+  }
 );
 
 
-// ============================
+// ========================================
 // UI更新
-// ============================
+// ========================================
 
 function updateUI() {
 
+  // 現在の残り数を毎回計算
   const playerCount =
     pieces.filter(
       p =>
@@ -1078,45 +1324,72 @@ function updateUI() {
     `あなた: ${playerCount} / BOT: ${botCount}`;
 
 
+  // ====================================
+  // 勝敗
+  // ====================================
+
   if (
-    playerCount === 0 ||
+    playerCount === 0 &&
     botCount === 0
   ) {
 
     turnStatus.innerText =
-      playerCount > 0
-        ? 'あなたの勝利！'
-        : 'BOTの勝利...';
-
+      "引き分け！";
 
     turnStatus.style.color =
-      playerCount > 0
-        ? '#2ed573'
-        : '#eb3b5a';
+      "#eccc68";
 
-  } else {
+  }
+
+  else if (
+    botCount === 0
+  ) {
+
+    turnStatus.innerText =
+      "あなたの勝利！";
+
+    turnStatus.style.color =
+      "#2ed573";
+
+  }
+
+  else if (
+    playerCount === 0
+  ) {
+
+    turnStatus.innerText =
+      "BOTの勝利...";
+
+    turnStatus.style.color =
+      "#eb3b5a";
+
+  }
+
+  else {
 
     turnStatus.innerText =
       isPlayerTurn
-        ? 'プレイヤーのターン'
-        : 'BOTのターン思考中...';
+        ? "プレイヤーのターン"
+        : "BOTのターン思考中...";
 
 
     turnStatus.style.color =
       isPlayerTurn
-        ? '#4bcffa'
-        : '#fffa65';
+        ? "#4bcffa"
+        : "#fffa65";
+
   }
+
 }
 
 
-// ============================
+// ========================================
 // カラーパレット
-// ============================
+// ========================================
 
 function renderColorPalette() {
 
-  colorContainer.innerHTML = '';
+  colorContainer.innerHTML = "";
 
 
   unlockedColors.forEach(
@@ -1124,15 +1397,15 @@ function renderColorPalette() {
 
       const btn =
         document.createElement(
-          'div'
+          "div"
         );
 
 
       btn.className =
         `color-btn ${
           color === playerColor
-            ? 'selected'
-            : ''
+            ? "selected"
+            : ""
         }`;
 
 
@@ -1142,20 +1415,24 @@ function renderColorPalette() {
 
       btn.onclick = () => {
 
-        playerColor = color;
+        playerColor =
+          color;
 
 
         pieces.forEach(p => {
 
           if (p.isPlayer) {
+
             p.color =
               playerColor;
+
           }
 
         });
 
 
         renderColorPalette();
+
       };
 
 
@@ -1165,12 +1442,13 @@ function renderColorPalette() {
 
     }
   );
+
 }
 
 
-// ============================
+// ========================================
 // ガチャ
-// ============================
+// ========================================
 
 gachaBtn.onclick = () => {
 
@@ -1186,7 +1464,7 @@ gachaBtn.onclick = () => {
   ) {
 
     alert(
-      'すべての色を獲得済みです！'
+      "すべての色を獲得済みです！"
     );
 
     return;
@@ -1214,8 +1492,10 @@ gachaBtn.onclick = () => {
   pieces.forEach(p => {
 
     if (p.isPlayer) {
+
       p.color =
         playerColor;
+
     }
 
   });
@@ -1225,28 +1505,30 @@ gachaBtn.onclick = () => {
 
 
   alert(
-    '新しい色を獲得しました！'
+    "新しい色を獲得しました！"
   );
+
 };
 
 
-// ============================
+// ========================================
 // リセット
-// ============================
+// ========================================
 
 resetBtn.onclick =
   initGame;
 
 
-// ============================
-// スタート
-// ============================
+// ========================================
+// ゲーム開始
+// ========================================
 
 renderColorPalette();
 
 initGame();
 
 gameLoop();
+
 
 </script>
 
