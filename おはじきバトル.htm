@@ -574,7 +574,7 @@ function drawArrow(
       dy
     );
 
-  if (dist < 5) {
+  if (dist < 7) {
     return;
   }
 
@@ -1195,12 +1195,14 @@ canvas.addEventListener(
   startDrag
 );
 
-canvas.addEventListener(
+// ★ PC操作: マウスがキャンバス(円)の外に出てもドラッグを継続できるように
+// mousemove / mouseup は document に紐付ける
+document.addEventListener(
   "mousemove",
   moveDrag
 );
 
-canvas.addEventListener(
+document.addEventListener(
   "mouseup",
   endDrag
 );
