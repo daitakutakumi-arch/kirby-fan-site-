@@ -51,7 +51,37 @@
       width: 100%;
     }
 
-    canvas {
+    /* ========================================
+       モードタブ
+       ======================================== */
+
+    .mode-tabs {
+      display: flex;
+      gap: 6px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .mode-tab {
+      flex: 1;
+      background: #33334a;
+      color: #cfcfe0;
+      padding: 9px 4px;
+      border-radius: 8px 8px 0 0;
+      font-weight: bold;
+      opacity: 0.65;
+      font-size: 12px;
+    }
+
+    .mode-tab.active {
+      background: #4b6584;
+      color: #fff;
+      opacity: 1;
+    }
+
+    /* メインの対戦/パズル用キャンバスだけに適用(トレイのミニ
+       プレビューやドラッグゴーストのcanvasを巻き込まないように) */
+    #gameCanvas {
       width: min(92vw, 400px);
       height: min(92vw, 400px);
 
@@ -71,6 +101,11 @@
       cursor: crosshair;
 
       touch-action: none;
+    }
+
+    #gameCanvas.square-canvas {
+      border-radius: 18px;
+      background: #20202c;
     }
 
     .ui-panel {
@@ -94,11 +129,19 @@
     .status-bar {
       display: flex;
       justify-content: space-between;
+      align-items: center;
 
       font-size: 14px;
       font-weight: bold;
 
       gap: 8px;
+    }
+
+    #skillBtn {
+      background: #2ed573;
+      color: #10331d;
+      font-size: 12px;
+      padding: 6px 10px;
     }
 
     .controls {
@@ -162,6 +205,228 @@
       border: 2px solid #ffdd59;
       transform: scale(1.2);
     }
+
+    /* ========================================
+       BOTタイプ / パズルステージ 選択
+       ======================================== */
+
+    .bot-select,
+    .puzzle-stage-select {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 2px;
+      font-size: 12px;
+    }
+
+    .bot-btn,
+    .stage-btn {
+      background: #3a3a4d;
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 14px;
+    }
+
+    .bot-btn.selected,
+    .stage-btn.selected {
+      background: #eb3b5a;
+    }
+
+    #puzzleInfo {
+      font-size: 13px;
+    }
+
+    /* ========================================
+       ブロックパズル(無限モード)
+       ======================================== */
+
+    .block-tray {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      padding: 4px 0 2px;
+    }
+
+    .block-slot {
+      width: 72px;
+      height: 72px;
+
+      background: #20202c;
+
+      border-radius: 10px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      touch-action: none;
+
+      cursor: grab;
+
+      border: 2px solid #35354a;
+    }
+
+    .block-slot.empty {
+      border-style: dashed;
+      opacity: 0.3;
+    }
+
+    .block-slot.dragging {
+      opacity: 0.25;
+    }
+
+    /* 指/カーソルにくっついて動くドラッグ中のブロック
+       (実際に置かれる場所とズレないよう、指の中心に正確に合わせる) */
+    .block-drag-ghost {
+      position: fixed;
+      left: 0;
+      top: 0;
+      pointer-events: none;
+      z-index: 100;
+      display: none;
+      transform: translate(-50%, -50%);
+      filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.5));
+    }
+
+    /* ========================================
+       スキルツリー パネル
+       ======================================== */
+
+    .skill-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      padding: 16px;
+    }
+
+    .skill-overlay.open {
+      display: flex;
+    }
+
+    .skill-panel {
+      background: #242432;
+      border-radius: 10px;
+      width: min(420px, 94vw);
+      max-height: 82vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    .skill-panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 14px;
+      background: #2f2f42;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .skill-panel-header button {
+      background: transparent;
+      padding: 2px 8px;
+      font-size: 16px;
+    }
+
+    .skill-list {
+      padding: 12px 14px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .skill-node {
+      border: 2px solid #3f3f55;
+      border-radius: 8px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .skill-node.unlocked {
+      border-color: #2ed573;
+      background: rgba(46, 213, 115, 0.08);
+    }
+
+    .skill-node.locked-req {
+      opacity: 0.45;
+    }
+
+    .skill-node-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .skill-node-desc {
+      font-size: 12px;
+      color: #c8c8d8;
+    }
+
+    .skill-node button {
+      align-self: flex-end;
+      font-size: 12px;
+      padding: 5px 10px;
+    }
+
+    /* ========================================
+       勝利/敗北 演出
+       ======================================== */
+
+    @keyframes popIn {
+      0% {
+        transform: scale(0.4);
+        opacity: 0;
+      }
+      60% {
+        transform: scale(1.2);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    @keyframes shakeContainer {
+      0%, 100% { transform: translateX(0); }
+      15% { transform: translateX(-10px) rotate(-1deg); }
+      30% { transform: translateX(9px) rotate(1deg); }
+      45% { transform: translateX(-7px) rotate(-1deg); }
+      60% { transform: translateX(6px) rotate(1deg); }
+      75% { transform: translateX(-4px); }
+      90% { transform: translateX(3px); }
+    }
+
+    .turn-status-win {
+      display: inline-block;
+      animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+      text-shadow:
+        0 0 8px #2ed573,
+        0 0 18px #2ed573;
+    }
+
+    .turn-status-lose {
+      display: inline-block;
+      animation: popIn 0.6s ease, shakeContainer 0.5s ease;
+      text-shadow:
+        0 0 8px #eb3b5a,
+        0 0 18px #eb3b5a;
+    }
+
+    .game-container.shake {
+      animation: shakeContainer 0.5s ease;
+    }
   </style>
 </head>
 
@@ -169,7 +434,13 @@
 
   <h1>おはじきバトル (vs BOT)</h1>
 
-  <div class="game-container">
+  <div class="game-container" id="gameContainer">
+
+    <div class="mode-tabs">
+      <button class="mode-tab active" id="tabBattle">⚔ 対戦</button>
+      <button class="mode-tab" id="tabPuzzle">🧩 パズル</button>
+      <button class="mode-tab" id="tabBlock">🧊 ブロック</button>
+    </div>
 
     <canvas
       id="gameCanvas"
@@ -194,34 +465,101 @@
 
       </div>
 
-      <div class="controls">
+      <div class="status-bar">
+        <span id="spStatus">SP: 0</span>
+        <button id="skillBtn">🌳 スキルツリー</button>
+      </div>
 
-        <div>
+      <!-- 対戦モード用コントロール -->
+      <div id="battleControls">
 
-          <span style="font-size:12px;">
-            所持カラー:
-          </span>
+        <div class="bot-select" id="botSelect">
+          <span>BOTタイプ:</span>
+          <button class="bot-btn" data-type="easy">弱い</button>
+          <button class="bot-btn selected" data-type="normal">普通</button>
+          <button class="bot-btn" data-type="hard">強い</button>
+          <button class="bot-btn" data-type="trick">意地悪</button>
+        </div>
 
-          <div
-            class="color-select"
-            id="colorContainer"
-          ></div>
+        <div class="controls">
+
+          <div>
+
+            <span style="font-size:12px;">
+              所持カラー:
+            </span>
+
+            <div
+              class="color-select"
+              id="colorContainer"
+            ></div>
+
+          </div>
+
+          <button
+            class="btn-gacha"
+            id="gachaBtn"
+          >
+            ガチャ (無料)
+          </button>
+
+          <button id="resetBtn">
+            リセット
+          </button>
 
         </div>
 
-        <button
-          class="btn-gacha"
-          id="gachaBtn"
-        >
-          ガチャ (無料)
-        </button>
+      </div>
 
-        <button id="resetBtn">
-          リセット
-        </button>
+      <!-- パズルモード用コントロール -->
+      <div id="puzzleControls" style="display:none;">
+
+        <div class="puzzle-stage-select" id="stageSelect">
+          <span>ステージ:</span>
+          <button class="stage-btn selected" data-stage="1">1</button>
+          <button class="stage-btn" data-stage="2">2</button>
+          <button class="stage-btn" data-stage="3">3</button>
+        </div>
+
+        <div class="controls">
+          <span id="puzzleInfo">残りショット: 3 / ターゲット: 3</span>
+          <button id="puzzleRetryBtn">リトライ</button>
+        </div>
 
       </div>
 
+      <!-- ブロックパズル(無限モード)用コントロール -->
+      <div id="blockControls" style="display:none;">
+
+        <div class="block-tray" id="blockTray"></div>
+
+        <div class="controls">
+          <span style="font-size:12px;">
+            ブロックを置いてタテ・ヨコを揃えよう
+          </span>
+          <button id="blockRestartBtn">
+            はじめから
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ドラッグ中のブロック(指/カーソルに追従) -->
+  <div class="block-drag-ghost" id="blockDragGhost">
+    <canvas id="blockDragGhostCanvas" width="70" height="70"></canvas>
+  </div>
+
+  <!-- スキルツリー パネル -->
+  <div class="skill-overlay" id="skillOverlay">
+    <div class="skill-panel">
+      <div class="skill-panel-header">
+        <span>🌳 スキルツリー (SP: <span id="skillPanelSP">0</span>)</span>
+        <button id="closeSkillBtn">✕</button>
+      </div>
+      <div class="skill-list" id="skillList"></div>
     </div>
   </div>
 
@@ -253,9 +591,72 @@ const gachaBtn =
 const resetBtn =
   document.getElementById("resetBtn");
 
+const gameContainer =
+  document.getElementById("gameContainer");
+
+const tabBattle =
+  document.getElementById("tabBattle");
+
+const tabPuzzle =
+  document.getElementById("tabPuzzle");
+
+const tabBlock =
+  document.getElementById("tabBlock");
+
+const battleControls =
+  document.getElementById("battleControls");
+
+const puzzleControls =
+  document.getElementById("puzzleControls");
+
+const blockControls =
+  document.getElementById("blockControls");
+
+const botBtns =
+  document.querySelectorAll("#botSelect .bot-btn");
+
+const stageBtns =
+  document.querySelectorAll("#stageSelect .stage-btn");
+
+const puzzleInfo =
+  document.getElementById("puzzleInfo");
+
+const puzzleRetryBtn =
+  document.getElementById("puzzleRetryBtn");
+
+const blockTrayEl =
+  document.getElementById("blockTray");
+
+const blockDragGhostEl =
+  document.getElementById("blockDragGhost");
+
+const blockDragGhostCanvas =
+  document.getElementById("blockDragGhostCanvas");
+
+const blockRestartBtn =
+  document.getElementById("blockRestartBtn");
+
+const spStatus =
+  document.getElementById("spStatus");
+
+const skillBtn =
+  document.getElementById("skillBtn");
+
+const skillOverlay =
+  document.getElementById("skillOverlay");
+
+const closeSkillBtn =
+  document.getElementById("closeSkillBtn");
+
+const skillList =
+  document.getElementById("skillList");
+
+const skillPanelSP =
+  document.getElementById("skillPanelSP");
+
 
 // ========================================
-// ゲーム設定
+// ゲーム設定(基本値)
 // ========================================
 
 const R = 18;
@@ -265,13 +666,14 @@ const BOARD_R = 205;
 
 const CENTER = 200;
 
-// ★ ブレーキ強め
-const FRICTION = 0.88;
+// 基本ステータス(スキルで強化される)
+const BASE_MAX_POWER = 20;
+const BASE_FRICTION = 0.94;
+const BASE_RESTITUTION = 0.9;
 
-const RESTITUTION = 0.9;
-
-// ★ 最大パワーを少しアップ
-const MAX_POWER = 20;
+let MAX_POWER = BASE_MAX_POWER;
+let FRICTION = BASE_FRICTION;
+let RESTITUTION = BASE_RESTITUTION;
 
 
 // ========================================
@@ -299,7 +701,7 @@ let playerColor = "#ff4757";
 
 
 // ========================================
-// ゲーム状態
+// ゲーム状態(対戦/パズル共通)
 // ========================================
 
 let pieces = [];
@@ -322,6 +724,43 @@ window.botPending = false;
 
 // BOTが現在動いているか
 window.botMoving = false;
+
+// パズルのショット結果待ち
+window.puzzleShotPending = false;
+
+
+// ========================================
+// モード / 進行状態
+// ========================================
+
+// "battle" | "puzzle" | "block"
+let gameMode = "battle";
+
+// "easy" | "normal" | "hard" | "trick"
+let botType = "normal";
+
+// スキルポイントと習得済みスキル
+let skillPoints = 0;
+let unlockedSkills = [];
+
+// パズル状態
+let puzzleStage = 1;
+let puzzleShotsUsed = 0;
+let puzzleShotsAllowed = 3;
+let puzzleCleared = false;
+let puzzleFailed = false;
+
+
+// ========================================
+// 勝利/敗北 演出用ステート
+// ========================================
+
+let currentResult = null;
+
+let confetti = [];
+
+let winFlashAlpha = 0;
+let loseFlashAlpha = 0;
 
 
 // ========================================
@@ -348,6 +787,9 @@ class Piece {
     this.color = color;
 
     this.isOut = false;
+
+    // パズルモードのターゲット
+    this.isTarget = false;
   }
 
 
@@ -361,11 +803,11 @@ class Piece {
     this.x += this.vx;
     this.y += this.vy;
 
-    // ★ 強めのブレーキ
+    // ブレーキ
     this.vx *= FRICTION;
     this.vy *= FRICTION;
 
-    // ★ ゆっくりした動きも早めに停止
+    // ゆっくりした動きも早めに停止
     if (
       Math.hypot(
         this.vx,
@@ -444,9 +886,498 @@ class Piece {
 
     ctx.fill();
 
+    // ターゲットマーク
+    if (this.isTarget) {
+
+      ctx.font = `${R}px sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = "#7a4a00";
+
+      ctx.fillText(
+        "★",
+        this.x,
+        this.y + 1
+      );
+    }
+
     ctx.restore();
   }
 }
+
+
+// ========================================
+// 紙吹雪パーティクル(演出共通)
+// ========================================
+
+class Confetti {
+
+  constructor(x, y) {
+
+    this.x = x;
+    this.y = y;
+
+    const angle =
+      Math.random() * Math.PI * 2;
+
+    const speed =
+      Math.random() * 9 + 3;
+
+    this.vx =
+      Math.cos(angle) * speed;
+
+    this.vy =
+      Math.sin(angle) * speed -
+      4;
+
+    this.gravity = 0.28;
+
+    this.size =
+      Math.random() * 6 + 4;
+
+    this.color =
+      `hsl(${Math.floor(
+        Math.random() * 360
+      )}, 85%, 62%)`;
+
+    this.rotation =
+      Math.random() * 360;
+
+    this.rotSpeed =
+      (Math.random() - 0.5) * 25;
+
+    this.life = 1;
+  }
+
+
+  update() {
+
+    this.vy += this.gravity;
+
+    this.x += this.vx;
+    this.y += this.vy;
+
+    this.rotation +=
+      this.rotSpeed;
+
+    this.life -= 0.012;
+  }
+
+
+  draw() {
+
+    if (this.life <= 0) {
+      return;
+    }
+
+    ctx.save();
+
+    ctx.globalAlpha =
+      Math.max(this.life, 0);
+
+    ctx.translate(
+      this.x,
+      this.y
+    );
+
+    ctx.rotate(
+      (this.rotation * Math.PI) / 180
+    );
+
+    ctx.fillStyle = this.color;
+
+    ctx.fillRect(
+      -this.size / 2,
+      -this.size / 2,
+      this.size,
+      this.size
+    );
+
+    ctx.restore();
+  }
+}
+
+
+// ========================================
+// 勝利/敗北 演出トリガー
+// ========================================
+
+function triggerWinEffect() {
+
+  confetti = [];
+
+  for (
+    let i = 0;
+    i < 140;
+    i++
+  ) {
+
+    confetti.push(
+      new Confetti(
+        CENTER,
+        CENTER
+      )
+    );
+  }
+
+  winFlashAlpha = 0.55;
+
+  turnStatus.classList.remove(
+    "turn-status-lose"
+  );
+
+  turnStatus.classList.remove(
+    "turn-status-win"
+  );
+
+  void turnStatus.offsetWidth;
+
+  turnStatus.classList.add(
+    "turn-status-win"
+  );
+}
+
+
+function triggerLoseEffect() {
+
+  loseFlashAlpha = 0.5;
+
+  turnStatus.classList.remove(
+    "turn-status-win"
+  );
+
+  turnStatus.classList.remove(
+    "turn-status-lose"
+  );
+
+  gameContainer.classList.remove(
+    "shake"
+  );
+
+  void turnStatus.offsetWidth;
+
+  turnStatus.classList.add(
+    "turn-status-lose"
+  );
+
+  gameContainer.classList.add(
+    "shake"
+  );
+}
+
+
+function triggerDrawEffect() {
+
+  turnStatus.classList.remove(
+    "turn-status-win",
+    "turn-status-lose"
+  );
+}
+
+
+function resetResultEffects() {
+
+  currentResult = null;
+
+  confetti = [];
+
+  winFlashAlpha = 0;
+  loseFlashAlpha = 0;
+
+  turnStatus.classList.remove(
+    "turn-status-win",
+    "turn-status-lose"
+  );
+
+  gameContainer.classList.remove(
+    "shake"
+  );
+}
+
+
+// ========================================
+// スキルツリー
+// ========================================
+
+const skillTree = [
+  {
+    id: "power1",
+    name: "パワーブースト I",
+    desc: "最大パワーが +3 される",
+    cost: 3,
+    requires: []
+  },
+  {
+    id: "power2",
+    name: "パワーブースト II",
+    desc: "最大パワーがさらに +3 される",
+    cost: 6,
+    requires: ["power1"]
+  },
+  {
+    id: "slide1",
+    name: "スライドグリップ",
+    desc: "摩擦が少し弱まり、よく滑るようになる",
+    cost: 4,
+    requires: []
+  },
+  {
+    id: "bounce1",
+    name: "リバウンド強化",
+    desc: "衝突時の反発が強くなる",
+    cost: 5,
+    requires: ["slide1"]
+  },
+  {
+    id: "piece1",
+    name: "援軍投入",
+    desc: "対戦モードでおはじきが1個増える(5個スタート)",
+    cost: 8,
+    requires: ["power2", "bounce1"]
+  },
+  {
+    id: "luck1",
+    name: "ラッキーショット",
+    desc: "習得した瞬間、ガチャの色を1つ無料で獲得できる",
+    cost: 2,
+    requires: []
+  }
+];
+
+
+function recalcStats() {
+
+  MAX_POWER =
+    BASE_MAX_POWER +
+    (unlockedSkills.includes("power1") ? 3 : 0) +
+    (unlockedSkills.includes("power2") ? 3 : 0);
+
+  FRICTION =
+    unlockedSkills.includes("slide1")
+      ? 0.965
+      : BASE_FRICTION;
+
+  RESTITUTION =
+    unlockedSkills.includes("bounce1")
+      ? 1.0
+      : BASE_RESTITUTION;
+}
+
+
+function skillRequirementsMet(skill) {
+
+  return skill.requires.every(
+    r => unlockedSkills.includes(r)
+  );
+}
+
+
+function renderSkillTree() {
+
+  skillList.innerHTML = "";
+
+  skillTree.forEach(skill => {
+
+    const unlocked =
+      unlockedSkills.includes(skill.id);
+
+    const reqMet =
+      skillRequirementsMet(skill);
+
+    const canBuy =
+      !unlocked &&
+      reqMet &&
+      skillPoints >= skill.cost;
+
+    const node =
+      document.createElement("div");
+
+    node.className =
+      `skill-node ${
+        unlocked ? "unlocked" : ""
+      } ${
+        !reqMet && !unlocked
+          ? "locked-req"
+          : ""
+      }`;
+
+    const reqText =
+      skill.requires.length
+        ? `必要: ${
+            skill.requires
+              .map(r =>
+                skillTree.find(
+                  s => s.id === r
+                ).name
+              )
+              .join("、")
+          }`
+        : "前提条件なし";
+
+    node.innerHTML = `
+      <div class="skill-node-top">
+        <span>${skill.name}</span>
+        <span style="font-size:12px;color:#ffdd59;">${skill.cost} SP</span>
+      </div>
+      <div class="skill-node-desc">${skill.desc}</div>
+      <div class="skill-node-desc" style="opacity:0.6;">${reqText}</div>
+    `;
+
+    const btn =
+      document.createElement("button");
+
+    if (unlocked) {
+
+      btn.innerText = "習得済み";
+      btn.disabled = true;
+
+    } else {
+
+      btn.innerText = "習得する";
+      btn.disabled = !canBuy;
+
+      btn.onclick = () =>
+        buySkill(skill.id);
+    }
+
+    node.appendChild(btn);
+
+    skillList.appendChild(node);
+  });
+}
+
+
+function buySkill(id) {
+
+  const skill =
+    skillTree.find(s => s.id === id);
+
+  if (!skill) {
+    return;
+  }
+
+  if (unlockedSkills.includes(id)) {
+    return;
+  }
+
+  if (!skillRequirementsMet(skill)) {
+    return;
+  }
+
+  if (skillPoints < skill.cost) {
+    return;
+  }
+
+  skillPoints -= skill.cost;
+
+  unlockedSkills.push(id);
+
+  recalcStats();
+
+  if (id === "luck1") {
+
+    const locked =
+      allGachaColors.filter(
+        c => !unlockedColors.includes(c)
+      );
+
+    if (locked.length > 0) {
+
+      unlockedColors.push(
+        locked[
+          Math.floor(
+            Math.random() * locked.length
+          )
+        ]
+      );
+
+      renderColorPalette();
+    }
+  }
+
+  updateSPDisplay();
+
+  renderSkillTree();
+}
+
+
+function updateSPDisplay() {
+
+  spStatus.innerText =
+    `SP: ${skillPoints}`;
+
+  skillPanelSP.innerText =
+    skillPoints;
+}
+
+
+skillBtn.onclick = () => {
+
+  skillOverlay.classList.add("open");
+
+  renderSkillTree();
+};
+
+
+closeSkillBtn.onclick = () => {
+
+  skillOverlay.classList.remove("open");
+};
+
+
+skillOverlay.addEventListener(
+  "click",
+  e => {
+
+    if (e.target === skillOverlay) {
+
+      skillOverlay.classList.remove(
+        "open"
+      );
+    }
+  }
+);
+
+
+// ========================================
+// パズルステージ定義
+// ========================================
+
+const puzzleStages = {
+
+  1: {
+    shots: 3,
+    reward: 4,
+    targets: [
+      { x: 200, y: 130 },
+      { x: 150, y: 230 },
+      { x: 250, y: 230 }
+    ]
+  },
+
+  2: {
+    shots: 3,
+    reward: 6,
+    targets: [
+      { x: 200, y: 110 },
+      { x: 130, y: 190 },
+      { x: 270, y: 190 },
+      { x: 200, y: 270 }
+    ]
+  },
+
+  3: {
+    shots: 2,
+    reward: 9,
+    targets: [
+      { x: 200, y: 90 },
+      { x: 200, y: 150 },
+      { x: 200, y: 250 },
+      { x: 130, y: 200 },
+      { x: 270, y: 200 }
+    ]
+  }
+};
 
 
 // ========================================
@@ -574,7 +1505,7 @@ function drawArrow(
       dy
     );
 
-  if (dist < 7) {
+  if (dist < 5) {
     return;
   }
 
@@ -688,46 +1619,74 @@ function drawArrow(
 
 
 // ========================================
-// ゲーム初期化
+// 配置ヘルパー
+// ========================================
+
+function layoutRow(
+  count,
+  y,
+  isPlayer,
+  color
+) {
+
+  const step = 60;
+
+  const startX =
+    200 - ((count - 1) * step) / 2;
+
+  for (
+    let i = 0;
+    i < count;
+    i++
+  ) {
+
+    const x =
+      count > 1
+        ? startX + i * step
+        : 200;
+
+    pieces.push(
+      new Piece(
+        x,
+        y,
+        isPlayer,
+        color
+      )
+    );
+  }
+}
+
+
+// ========================================
+// ゲーム初期化(対戦モード)
 // ========================================
 
 function initGame() {
 
+  gameMode = "battle";
+
   pieces = [];
 
-  // プレイヤー4個
-  for (
-    let i = 0;
-    i < 4;
-    i++
-  ) {
+  const playerCount =
+    unlockedSkills.includes("piece1")
+      ? 5
+      : 4;
 
-    pieces.push(
-      new Piece(
-        110 + i * 60,
-        320,
-        true,
-        playerColor
-      )
-    );
-  }
+  // プレイヤー
+  layoutRow(
+    playerCount,
+    320,
+    true,
+    playerColor
+  );
 
-  // BOT4個
-  for (
-    let i = 0;
-    i < 4;
-    i++
-  ) {
-
-    pieces.push(
-      new Piece(
-        110 + i * 60,
-        80,
-        false,
-        "#718093"
-      )
-    );
-  }
+  // BOT
+  layoutRow(
+    4,
+    80,
+    false,
+    "#718093"
+  );
 
   isPlayerTurn = true;
 
@@ -739,15 +1698,1437 @@ function initGame() {
 
   window.botMoving = false;
 
+  resetResultEffects();
+
   updateUI();
 }
 
 
 // ========================================
-// ゲームループ
+// パズル関連
 // ========================================
 
-function gameLoop() {
+function spawnPuzzleShot() {
+
+  pieces.push(
+    new Piece(
+      200,
+      335,
+      true,
+      playerColor
+    )
+  );
+
+  isPlayerTurn = true;
+}
+
+
+function initPuzzle(stage) {
+
+  gameMode = "puzzle";
+
+  puzzleStage = stage;
+
+  const def = puzzleStages[stage];
+
+  pieces = [];
+
+  def.targets.forEach(t => {
+
+    const p = new Piece(
+      t.x,
+      t.y,
+      false,
+      "#f5c451"
+    );
+
+    p.isTarget = true;
+
+    pieces.push(p);
+  });
+
+  puzzleShotsUsed = 0;
+  puzzleShotsAllowed = def.shots;
+
+  puzzleCleared = false;
+  puzzleFailed = false;
+
+  isDragging = false;
+  selectedPiece = null;
+
+  window.botPending = false;
+  window.botMoving = false;
+  window.puzzleShotPending = false;
+
+  resetResultEffects();
+
+  spawnPuzzleShot();
+
+  updatePuzzleUI();
+}
+
+
+// ========================================
+// ブロックパズル(無限モード)
+// ========================================
+
+const BLOCK_SIZE = 8;
+const CELL = 40; // 少し小さめのマス目
+const BOARD_PIXEL = BLOCK_SIZE * CELL; // 320
+const BOARD_OFFSET =
+  (400 - BOARD_PIXEL) / 2; // 盤面をキャンバス中央に配置
+
+const blockShapes = [
+
+  [[0, 0]],
+
+  [[0, 0], [0, 1]],
+  [[0, 0], [1, 0]],
+
+  [[0, 0], [0, 1], [0, 2]],
+  [[0, 0], [1, 0], [2, 0]],
+
+  [[0, 0], [0, 1], [0, 2], [0, 3]],
+  [[0, 0], [1, 0], [2, 0], [3, 0]],
+
+  [[0, 0], [0, 1], [1, 0], [1, 1]],
+
+  [[0, 0], [0, 1], [0, 2], [1, 0]],
+  [[0, 0], [0, 1], [0, 2], [1, 2]],
+  [[1, 0], [1, 1], [1, 2], [0, 2]],
+  [[0, 0], [1, 0], [1, 1], [1, 2]],
+
+  [[0, 0], [0, 1], [1, 1], [1, 2]],
+  [[0, 1], [0, 2], [1, 0], [1, 1]],
+  [[0, 0], [1, 0], [1, 1], [2, 1]],
+  [[0, 1], [1, 0], [1, 1], [2, 0]],
+
+  [[0, 1], [1, 0], [1, 1], [1, 2]],
+  [[0, 0], [1, 0], [1, 1], [2, 0]],
+
+  // 大きめの形(盤面がスカスカな時に出やすくする)
+  [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2]],
+  [[0, 1], [1, 0], [1, 1], [1, 2], [2, 1]],
+  [[0, 0], [0, 1], [1, 0], [1, 1], [2, 0], [2, 1]]
+];
+
+// マス数でカテゴリ分け(盤面の密度に応じて出す大きさを変えるため)
+const blockShapesSmall =
+  blockShapes.filter(s => s.length <= 2);
+
+const blockShapesMedium =
+  blockShapes.filter(
+    s => s.length === 3 || s.length === 4
+  );
+
+const blockShapesLarge =
+  blockShapes.filter(s => s.length >= 5);
+
+const blockColors = [
+  "#ff4757",
+  "#2ed573",
+  "#1e90ff",
+  "#ffa502",
+  "#9b59b6",
+  "#ff7ff3",
+  "#70a1ff",
+  "#eccc68"
+];
+
+let blockGrid = [];
+
+// ========================================
+// 効果音(WebAudioで生成、外部ファイル不要)
+// ========================================
+
+let audioCtx = null;
+
+function ensureAudioContext() {
+
+  if (!audioCtx) {
+
+    const AC =
+      window.AudioContext ||
+      window.webkitAudioContext;
+
+    audioCtx = new AC();
+  }
+
+  if (audioCtx.state === "suspended") {
+
+    audioCtx.resume();
+  }
+
+  return audioCtx;
+}
+
+
+function playTone(
+  freq,
+  duration,
+  type,
+  volume,
+  delay
+) {
+
+  try {
+
+    const ac = ensureAudioContext();
+
+    const osc = ac.createOscillator();
+    const gain = ac.createGain();
+
+    osc.type = type || "sine";
+    osc.frequency.value = freq;
+
+    const startAt =
+      ac.currentTime + (delay || 0);
+
+    gain.gain.setValueAtTime(
+      volume || 0.15,
+      startAt
+    );
+
+    gain.gain.exponentialRampToValueAtTime(
+      0.001,
+      startAt + duration
+    );
+
+    osc.connect(gain);
+    gain.connect(ac.destination);
+
+    osc.start(startAt);
+    osc.stop(startAt + duration + 0.02);
+
+  } catch (err) {
+
+    // 音声再生に対応していない環境は無視
+  }
+}
+
+
+function playPlaceSound() {
+
+  playTone(440, 0.08, "square", 0.07, 0);
+}
+
+
+function playClearSound(totalLines) {
+
+  // 同時に消したライン数が多いほど、音も豪華なアルペジオになる
+  const notes = [
+    523.25,
+    659.25,
+    783.99,
+    1046.5,
+    1318.5
+  ];
+
+  const count =
+    Math.min(totalLines + 1, notes.length);
+
+  for (
+    let i = 0;
+    i < count;
+    i++
+  ) {
+
+    playTone(
+      notes[i],
+      0.28,
+      "triangle",
+      0.12,
+      i * 0.06
+    );
+  }
+}
+
+
+function playGameOverSound() {
+
+  playTone(300, 0.2, "sawtooth", 0.1, 0);
+  playTone(220, 0.3, "sawtooth", 0.1, 0.15);
+  playTone(150, 0.4, "sawtooth", 0.1, 0.3);
+}
+let blockTray = [];
+let blockScore = 0;
+let blockBest = 0;
+let blockGameOver = false;
+
+let draggingTrayIndex = null;
+let dragGhostPos = null;
+
+// ラインが揃って消える瞬間の演出用(縮小+フェードアウト)
+let blockClearAnims = [];
+const BLOCK_CLEAR_ANIM_MS = 260;
+
+// 複数ライン同時消し(コンボ)のポップアップ演出
+let blockComboPopup = null;
+const BLOCK_COMBO_POPUP_MS = 700;
+
+
+function createEmptyGrid() {
+
+  const grid = [];
+
+  for (
+    let r = 0;
+    r < BLOCK_SIZE;
+    r++
+  ) {
+
+    grid.push(
+      new Array(BLOCK_SIZE).fill(null)
+    );
+  }
+
+  return grid;
+}
+
+
+// 盤面の埋まり具合(0〜1)を計算
+function getBoardDensity() {
+
+  if (!blockGrid.length) {
+    return 0;
+  }
+
+  let filled = 0;
+
+  for (
+    let r = 0;
+    r < BLOCK_SIZE;
+    r++
+  ) {
+
+    for (
+      let c = 0;
+      c < BLOCK_SIZE;
+      c++
+    ) {
+
+      if (blockGrid[r][c] !== null) {
+        filled++;
+      }
+    }
+  }
+
+  return filled / (BLOCK_SIZE * BLOCK_SIZE);
+}
+
+
+// 密度が高い(混んでいる)ほど小さいブロックを、
+// 密度が低い(スカスカ)ほど大きいブロックを出しやすくする
+function pickShapePool() {
+
+  const density = getBoardDensity();
+
+  let weights;
+
+  if (density > 0.55) {
+
+    weights = { small: 0.6, medium: 0.32, large: 0.08 };
+
+  } else if (density < 0.25) {
+
+    weights = { small: 0.15, medium: 0.4, large: 0.45 };
+
+  } else {
+
+    weights = { small: 0.34, medium: 0.4, large: 0.26 };
+  }
+
+  const roll = Math.random();
+
+  if (roll < weights.small) {
+
+    return blockShapesSmall;
+
+  } else if (
+    roll < weights.small + weights.medium
+  ) {
+
+    return blockShapesMedium;
+
+  } else {
+
+    return blockShapesLarge;
+  }
+}
+
+
+function randomBlockPiece() {
+
+  const pool = pickShapePool();
+
+  return {
+    shape:
+      pool[
+        Math.floor(
+          Math.random() * pool.length
+        )
+      ],
+
+    color:
+      blockColors[
+        Math.floor(
+          Math.random() * blockColors.length
+        )
+      ]
+  };
+}
+
+
+function shapeSize(shape) {
+
+  const rows = shape.map(c => c[0]);
+  const cols = shape.map(c => c[1]);
+
+  return {
+    h: Math.max(...rows) + 1,
+    w: Math.max(...cols) + 1
+  };
+}
+
+
+function canPlaceShapeAt(shape, row, col) {
+
+  return shape.every(([dr, dc]) => {
+
+    const r = row + dr;
+    const c = col + dc;
+
+    return (
+      r >= 0 &&
+      r < BLOCK_SIZE &&
+      c >= 0 &&
+      c < BLOCK_SIZE &&
+      blockGrid[r][c] === null
+    );
+  });
+}
+
+
+function placeShapeAt(shape, row, col, color) {
+
+  shape.forEach(([dr, dc]) => {
+
+    blockGrid[row + dr][col + dc] = color;
+  });
+}
+
+
+function checkAndClearLines() {
+
+  const fullRows = [];
+  const fullCols = [];
+
+  for (
+    let r = 0;
+    r < BLOCK_SIZE;
+    r++
+  ) {
+
+    if (
+      blockGrid[r].every(
+        v => v !== null
+      )
+    ) {
+
+      fullRows.push(r);
+    }
+  }
+
+  for (
+    let c = 0;
+    c < BLOCK_SIZE;
+    c++
+  ) {
+
+    let full = true;
+
+    for (
+      let r = 0;
+      r < BLOCK_SIZE;
+      r++
+    ) {
+
+      if (blockGrid[r][c] === null) {
+
+        full = false;
+
+        break;
+      }
+    }
+
+    if (full) {
+      fullCols.push(c);
+    }
+  }
+
+  if (
+    fullRows.length > 0 ||
+    fullCols.length > 0
+  ) {
+
+    triggerBlockClearEffect(
+      fullRows,
+      fullCols
+    );
+
+    // 消えるマスを縮小+フェードで滑らかに見せるためのアニメ登録
+    const animCells = new Map();
+
+    fullRows.forEach(r => {
+
+      for (
+        let c = 0;
+        c < BLOCK_SIZE;
+        c++
+      ) {
+
+        if (blockGrid[r][c] !== null) {
+
+          animCells.set(
+            `${r},${c}`,
+            { r, c, color: blockGrid[r][c] }
+          );
+        }
+      }
+    });
+
+    fullCols.forEach(c => {
+
+      for (
+        let r = 0;
+        r < BLOCK_SIZE;
+        r++
+      ) {
+
+        if (blockGrid[r][c] !== null) {
+
+          animCells.set(
+            `${r},${c}`,
+            { r, c, color: blockGrid[r][c] }
+          );
+        }
+      }
+    });
+
+    const now = performance.now();
+
+    animCells.forEach(cell => {
+
+      blockClearAnims.push({
+        r: cell.r,
+        c: cell.c,
+        color: cell.color,
+        start: now
+      });
+    });
+  }
+
+  fullRows.forEach(r => {
+
+    for (
+      let c = 0;
+      c < BLOCK_SIZE;
+      c++
+    ) {
+
+      blockGrid[r][c] = null;
+    }
+  });
+
+  fullCols.forEach(c => {
+
+    for (
+      let r = 0;
+      r < BLOCK_SIZE;
+      r++
+    ) {
+
+      blockGrid[r][c] = null;
+    }
+  });
+
+  return fullRows.length + fullCols.length;
+}
+
+
+function triggerBlockClearEffect(fullRows, fullCols) {
+
+  const totalLines =
+    fullRows.length + fullCols.length;
+
+  // 同時に消すライン数が多いほどパーティクルを増やして豪華にする
+  const particlesPerLine =
+    Math.min(10 + totalLines * 5, 32);
+
+  fullRows.forEach(r => {
+
+    for (
+      let i = 0;
+      i < particlesPerLine;
+      i++
+    ) {
+
+      confetti.push(
+        new Confetti(
+          Math.random() * canvas.width,
+          BOARD_OFFSET + r * CELL + CELL / 2
+        )
+      );
+    }
+  });
+
+  fullCols.forEach(c => {
+
+    for (
+      let i = 0;
+      i < particlesPerLine;
+      i++
+    ) {
+
+      confetti.push(
+        new Confetti(
+          BOARD_OFFSET + c * CELL + CELL / 2,
+          Math.random() * canvas.height
+        )
+      );
+    }
+  });
+
+  // 多重消しほど画面フラッシュも強くする
+  winFlashAlpha =
+    Math.min(0.25 + totalLines * 0.15, 0.9);
+
+  // 2ライン以上同時に消したらコンボ演出+盤面シェイク
+  if (totalLines >= 2) {
+
+    const comboText =
+      totalLines >= 4
+        ? "スーパーコンボ!!"
+        : totalLines === 3
+          ? "トリプル!!"
+          : "ダブル!!";
+
+    blockComboPopup = {
+      text: comboText,
+      start: performance.now()
+    };
+
+    gameContainer.classList.remove("shake");
+
+    void gameContainer.offsetWidth;
+
+    gameContainer.classList.add("shake");
+  }
+
+  playClearSound(totalLines);
+}
+
+
+function anyPieceCanBePlaced() {
+
+  return blockTray.some(piece => {
+
+    if (!piece) {
+      return false;
+    }
+
+    for (
+      let r = 0;
+      r < BLOCK_SIZE;
+      r++
+    ) {
+
+      for (
+        let c = 0;
+        c < BLOCK_SIZE;
+        c++
+      ) {
+
+        if (
+          canPlaceShapeAt(
+            piece.shape,
+            r,
+            c
+          )
+        ) {
+
+          return true;
+        }
+      }
+    }
+
+    return false;
+  });
+}
+
+
+function ghostToGridAnchor(shape, pos) {
+
+  const { h, w } = shapeSize(shape);
+
+  const pointerRow =
+    Math.floor((pos.y - BOARD_OFFSET) / CELL);
+
+  const pointerCol =
+    Math.floor((pos.x - BOARD_OFFSET) / CELL);
+
+  let row =
+    pointerRow - Math.floor((h - 1) / 2);
+
+  let col =
+    pointerCol - Math.floor((w - 1) / 2);
+
+  row =
+    Math.max(
+      0,
+      Math.min(BLOCK_SIZE - h, row)
+    );
+
+  col =
+    Math.max(
+      0,
+      Math.min(BLOCK_SIZE - w, col)
+    );
+
+  return { row, col };
+}
+
+
+function initBlockGame() {
+
+  gameMode = "block";
+
+  blockGrid = createEmptyGrid();
+
+  blockScore = 0;
+
+  blockGameOver = false;
+
+  blockClearAnims = [];
+
+  blockComboPopup = null;
+
+  draggingTrayIndex = null;
+  dragGhostPos = null;
+
+  blockDragGhostEl.style.display = "none";
+
+  blockTray = [
+    randomBlockPiece(),
+    randomBlockPiece(),
+    randomBlockPiece()
+  ];
+
+  resetResultEffects();
+
+  renderBlockTray();
+
+  updateBlockUI();
+}
+
+
+// 手札やドラッグゴースト用の縮小プレビューを描画する共通ヘルパー
+function drawShapeThumbnail(
+  canvasEl,
+  shape,
+  color,
+  boxSize
+) {
+
+  const tctx = canvasEl.getContext("2d");
+
+  tctx.clearRect(
+    0,
+    0,
+    boxSize,
+    boxSize
+  );
+
+  const { h, w } = shapeSize(shape);
+
+  const cell =
+    Math.min(
+      (boxSize - 14) / Math.max(h, w),
+      17
+    );
+
+  const offX = (boxSize - w * cell) / 2;
+  const offY = (boxSize - h * cell) / 2;
+
+  shape.forEach(([dr, dc]) => {
+
+    tctx.fillStyle = color;
+
+    tctx.fillRect(
+      offX + dc * cell + 2,
+      offY + dr * cell + 2,
+      cell - 4,
+      cell - 4
+    );
+  });
+}
+
+
+// 持ち上げた時のブロックを「置いた時の影」と同じ実寸(CELL基準)で描画する
+function drawShapeFullScale(
+  canvasEl,
+  shape,
+  color
+) {
+
+  const { h, w } = shapeSize(shape);
+
+  canvasEl.width = w * CELL;
+  canvasEl.height = h * CELL;
+
+  const gctx = canvasEl.getContext("2d");
+
+  gctx.clearRect(
+    0,
+    0,
+    canvasEl.width,
+    canvasEl.height
+  );
+
+  shape.forEach(([dr, dc]) => {
+
+    const x = dc * CELL;
+    const y = dr * CELL;
+
+    gctx.fillStyle = color;
+
+    gctx.fillRect(
+      x + 3,
+      y + 3,
+      CELL - 6,
+      CELL - 6
+    );
+
+    gctx.fillStyle =
+      "rgba(255,255,255,0.25)";
+
+    gctx.fillRect(
+      x + 5,
+      y + 5,
+      CELL - 10,
+      5
+    );
+  });
+}
+
+
+function renderBlockTray() {
+
+  blockTrayEl.innerHTML = "";
+
+  blockTray.forEach((piece, idx) => {
+
+    const slot =
+      document.createElement("div");
+
+    slot.className = "block-slot";
+
+    if (!piece) {
+
+      slot.classList.add("empty");
+
+    } else {
+
+      if (draggingTrayIndex === idx) {
+
+        slot.classList.add("dragging");
+      }
+
+      const c =
+        document.createElement("canvas");
+
+      c.width = 72;
+      c.height = 72;
+
+      drawShapeThumbnail(
+        c,
+        piece.shape,
+        piece.color,
+        72
+      );
+
+      slot.appendChild(c);
+
+      slot.addEventListener(
+        "pointerdown",
+        e => blockStartDrag(idx, e)
+      );
+    }
+
+    blockTrayEl.appendChild(slot);
+  });
+}
+
+
+function blockStartDrag(idx, e) {
+
+  if (blockGameOver) {
+    return;
+  }
+
+  const piece = blockTray[idx];
+
+  if (!piece) {
+    return;
+  }
+
+  draggingTrayIndex = idx;
+
+  updateBlockGhostFromEvent(e);
+
+  renderBlockTray();
+
+  // 指/カーソルにブロックが追従する演出を表示
+  // (盤面に置いた時と同じ実寸で見せる)
+  drawShapeFullScale(
+    blockDragGhostCanvas,
+    piece.shape,
+    piece.color
+  );
+
+  // キャンバスが画面サイズに合わせて縮小表示されている場合、
+  // 持っているブロックの見た目もその縮小率に合わせて、
+  // 盤面上の影とサイズがズレないようにする
+  const displayScale =
+    getCanvasDisplayScale();
+
+  const { h, w } = shapeSize(piece.shape);
+
+  blockDragGhostCanvas.style.width =
+    `${w * CELL * displayScale}px`;
+
+  blockDragGhostCanvas.style.height =
+    `${h * CELL * displayScale}px`;
+
+  blockDragGhostEl.style.display = "block";
+
+  blockDragGhostEl.style.left =
+    `${e.clientX}px`;
+
+  blockDragGhostEl.style.top =
+    `${e.clientY}px`;
+
+  e.preventDefault();
+}
+
+
+function getCanvasDisplayScale() {
+
+  const rect =
+    canvas.getBoundingClientRect();
+
+  return rect.width / canvas.width;
+}
+
+
+function updateBlockGhostFromEvent(e) {
+
+  const rect =
+    canvas.getBoundingClientRect();
+
+  const scaleX =
+    canvas.width / rect.width;
+
+  const scaleY =
+    canvas.height / rect.height;
+
+  const x =
+    (e.clientX - rect.left) * scaleX;
+
+  const y =
+    (e.clientY - rect.top) * scaleY;
+
+  if (
+    x >= 0 &&
+    x <= canvas.width &&
+    y >= 0 &&
+    y <= canvas.height
+  ) {
+
+    dragGhostPos = { x, y };
+
+  } else {
+
+    dragGhostPos = null;
+  }
+}
+
+
+function blockDragMove(e) {
+
+  if (draggingTrayIndex === null) {
+    return;
+  }
+
+  updateBlockGhostFromEvent(e);
+
+  blockDragGhostEl.style.left =
+    `${e.clientX}px`;
+
+  blockDragGhostEl.style.top =
+    `${e.clientY}px`;
+}
+
+
+function blockDragEnd(e) {
+
+  if (draggingTrayIndex === null) {
+    return;
+  }
+
+  const idx = draggingTrayIndex;
+  const piece = blockTray[idx];
+
+  if (dragGhostPos && piece) {
+
+    const { row, col } =
+      ghostToGridAnchor(
+        piece.shape,
+        dragGhostPos
+      );
+
+    if (
+      canPlaceShapeAt(
+        piece.shape,
+        row,
+        col
+      )
+    ) {
+
+      placeShapeAt(
+        piece.shape,
+        row,
+        col,
+        piece.color
+      );
+
+      playPlaceSound();
+
+      blockScore += piece.shape.length;
+
+      blockTray[idx] = null;
+
+      const cleared = checkAndClearLines();
+
+      if (cleared > 0) {
+
+        blockScore +=
+          cleared * 10 * cleared;
+
+        skillPoints += cleared;
+
+        updateSPDisplay();
+      }
+
+      if (
+        blockTray.every(p => p === null)
+      ) {
+
+        blockTray = [
+          randomBlockPiece(),
+          randomBlockPiece(),
+          randomBlockPiece()
+        ];
+      }
+
+      if (!anyPieceCanBePlaced()) {
+
+        blockGameOver = true;
+
+        playGameOverSound();
+
+        if (blockScore > blockBest) {
+
+          blockBest = blockScore;
+        }
+      }
+    }
+  }
+
+  draggingTrayIndex = null;
+  dragGhostPos = null;
+
+  blockDragGhostEl.style.display = "none";
+
+  renderBlockTray();
+
+  updateBlockUI();
+}
+
+
+document.addEventListener(
+  "pointermove",
+  blockDragMove
+);
+
+document.addEventListener(
+  "pointerup",
+  blockDragEnd
+);
+
+
+function drawBlockMode() {
+
+  ctx.clearRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+  ctx.fillStyle = "#20202c";
+
+  ctx.fillRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+  for (
+    let r = 0;
+    r < BLOCK_SIZE;
+    r++
+  ) {
+
+    for (
+      let c = 0;
+      c < BLOCK_SIZE;
+      c++
+    ) {
+
+      const x = BOARD_OFFSET + c * CELL;
+      const y = BOARD_OFFSET + r * CELL;
+
+      const val = blockGrid[r][c];
+
+      ctx.fillStyle =
+        val ? val : "#2c2c3c";
+
+      ctx.fillRect(
+        x + 3,
+        y + 3,
+        CELL - 6,
+        CELL - 6
+      );
+
+      if (val) {
+
+        ctx.fillStyle =
+          "rgba(255,255,255,0.25)";
+
+        ctx.fillRect(
+          x + 5,
+          y + 5,
+          CELL - 10,
+          5
+        );
+
+      } else {
+
+        ctx.strokeStyle =
+          "rgba(255,255,255,0.05)";
+
+        ctx.strokeRect(
+          x + 3,
+          y + 3,
+          CELL - 6,
+          CELL - 6
+        );
+      }
+    }
+  }
+
+  // ライン消去アニメーション(縮小+フェードアウト)
+  if (blockClearAnims.length > 0) {
+
+    const now = performance.now();
+
+    blockClearAnims = blockClearAnims.filter(
+      a => now - a.start < BLOCK_CLEAR_ANIM_MS
+    );
+
+    blockClearAnims.forEach(a => {
+
+      const t =
+        (now - a.start) /
+        BLOCK_CLEAR_ANIM_MS;
+
+      const eased = t * t;
+
+      const scale = 1 - eased;
+
+      const alpha = 1 - t;
+
+      const baseSize = CELL - 6;
+
+      const size = baseSize * scale;
+
+      const cx =
+        BOARD_OFFSET +
+        a.c * CELL +
+        CELL / 2;
+
+      const cy =
+        BOARD_OFFSET +
+        a.r * CELL +
+        CELL / 2;
+
+      ctx.save();
+
+      ctx.globalAlpha =
+        Math.max(alpha, 0);
+
+      ctx.fillStyle = a.color;
+
+      ctx.fillRect(
+        cx - size / 2,
+        cy - size / 2,
+        size,
+        size
+      );
+
+      ctx.restore();
+    });
+  }
+
+  // ドラッグ中のプレビュー(置ける時だけ影を表示する)
+  if (
+    draggingTrayIndex !== null &&
+    dragGhostPos
+  ) {
+
+    const piece =
+      blockTray[draggingTrayIndex];
+
+    if (piece) {
+
+      const { row, col } =
+        ghostToGridAnchor(
+          piece.shape,
+          dragGhostPos
+        );
+
+      const valid =
+        canPlaceShapeAt(
+          piece.shape,
+          row,
+          col
+        );
+
+      if (valid) {
+
+        piece.shape.forEach(([dr, dc]) => {
+
+          const r = row + dr;
+          const c = col + dc;
+
+          if (
+            r >= 0 &&
+            r < BLOCK_SIZE &&
+            c >= 0 &&
+            c < BLOCK_SIZE
+          ) {
+
+            ctx.fillStyle =
+              "rgba(46,213,115,0.55)";
+
+            ctx.fillRect(
+              BOARD_OFFSET + c * CELL + 3,
+              BOARD_OFFSET + r * CELL + 3,
+              CELL - 6,
+              CELL - 6
+            );
+          }
+        });
+      }
+    }
+  }
+
+  drawConfettiAndFlash();
+
+  // 複数ライン同時消しのコンボポップアップ
+  if (blockComboPopup) {
+
+    const elapsed =
+      performance.now() -
+      blockComboPopup.start;
+
+    if (elapsed < BLOCK_COMBO_POPUP_MS) {
+
+      const t =
+        elapsed / BLOCK_COMBO_POPUP_MS;
+
+      const popScale =
+        t < 0.25
+          ? 0.5 + 0.7 * (t / 0.25)
+          : 1.2 -
+            0.2 *
+            ((t - 0.25) / 0.75);
+
+      const alpha =
+        t < 0.65
+          ? 1
+          : 1 - (t - 0.65) / 0.35;
+
+      ctx.save();
+
+      ctx.globalAlpha =
+        Math.max(alpha, 0);
+
+      ctx.translate(
+        canvas.width / 2,
+        canvas.height / 2
+      );
+
+      ctx.scale(popScale, popScale);
+
+      ctx.font =
+        "bold 30px sans-serif";
+
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+
+      ctx.lineWidth = 6;
+      ctx.strokeStyle =
+        "rgba(0,0,0,0.6)";
+
+      ctx.strokeText(
+        blockComboPopup.text,
+        0,
+        0
+      );
+
+      ctx.fillStyle = "#ffdd59";
+
+      ctx.fillText(
+        blockComboPopup.text,
+        0,
+        0
+      );
+
+      ctx.restore();
+
+    } else {
+
+      blockComboPopup = null;
+    }
+  }
+}
+
+
+function updateBlockUI() {
+
+  scoreStatus.innerText =
+    `スコア: ${blockScore} (ベスト: ${blockBest})`;
+
+  if (blockGameOver) {
+
+    turnStatus.innerText =
+      "ゲームオーバー...";
+
+    turnStatus.style.color =
+      "#eb3b5a";
+
+    if (currentResult !== "lose") {
+
+      currentResult = "lose";
+
+      triggerLoseEffect();
+    }
+
+  } else {
+
+    turnStatus.innerText =
+      "ブロックを配置しよう";
+
+    turnStatus.style.color =
+      "#4bcffa";
+
+    currentResult = null;
+  }
+}
+
+
+blockRestartBtn.onclick =
+  initBlockGame;
+
+
+// ========================================
+// 演出描画(紙吹雪・フラッシュ)共通処理
+// ========================================
+
+function drawConfettiAndFlash() {
+
+  confetti.forEach(
+    c => c.update()
+  );
+
+  confetti = confetti.filter(
+    c =>
+      c.life > 0 &&
+      c.y < canvas.height + 60
+  );
+
+  confetti.forEach(
+    c => c.draw()
+  );
+
+  if (winFlashAlpha > 0) {
+
+    ctx.save();
+
+    ctx.fillStyle =
+      `rgba(255,255,255,${winFlashAlpha})`;
+
+    ctx.fillRect(
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+
+    ctx.restore();
+
+    winFlashAlpha -= 0.02;
+  }
+
+  if (loseFlashAlpha > 0) {
+
+    ctx.save();
+
+    ctx.fillStyle =
+      `rgba(235,59,90,${loseFlashAlpha})`;
+
+    ctx.fillRect(
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+
+    ctx.restore();
+
+    loseFlashAlpha -= 0.015;
+  }
+}
+
+
+// ========================================
+// ゲームループ(対戦/パズル)
+// ========================================
+
+function runOrbFrame() {
 
   ctx.clearRect(
     0,
@@ -796,6 +3177,9 @@ function gameLoop() {
     );
   }
 
+  // 演出
+  drawConfettiAndFlash();
+
 
   // ====================================
   // 全おはじき停止後の処理
@@ -803,110 +3187,118 @@ function gameLoop() {
 
   if (!isMoving) {
 
-    // BOT攻撃待ち
-    if (
-      !isPlayerTurn &&
-      window.botPending
-    ) {
+    if (gameMode === "battle") {
 
-      window.botPending = false;
-
-      const botCount =
-        pieces.filter(
-          p =>
-            !p.isPlayer &&
-            !p.isOut
-        ).length;
-
-      const playerCount =
-        pieces.filter(
-          p =>
-            p.isPlayer &&
-            !p.isOut
-        ).length;
-
-      // BOT全滅
+      // BOT攻撃待ち
       if (
-        botCount === 0
+        !isPlayerTurn &&
+        window.botPending
       ) {
 
-        isPlayerTurn = true;
+        window.botPending = false;
 
-        window.botMoving = false;
+        const botCount =
+          pieces.filter(
+            p =>
+              !p.isPlayer &&
+              !p.isOut
+          ).length;
 
-        updateUI();
+        const playerCount =
+          pieces.filter(
+            p =>
+              p.isPlayer &&
+              !p.isOut
+          ).length;
+
+        if (
+          botCount === 0 ||
+          playerCount === 0
+        ) {
+
+          isPlayerTurn = true;
+
+          window.botMoving = false;
+
+        } else {
+
+          setTimeout(
+            botMove,
+            50
+          );
+        }
       }
 
-      // プレイヤー全滅
+      // BOTの攻撃終了
       else if (
-        playerCount === 0
+        window.botMoving
       ) {
-
-        isPlayerTurn = true;
 
         window.botMoving = false;
 
-        updateUI();
-      }
-
-      // 両方残っている
-      else {
-
-        setTimeout(
-          botMove,
-          50
-        );
+        isPlayerTurn = true;
       }
     }
 
+    else if (gameMode === "puzzle") {
 
-    // BOTの攻撃終了
-    else if (
-      window.botMoving
-    ) {
-
-      window.botMoving = false;
-
-      const botCount =
-        pieces.filter(
-          p =>
-            !p.isPlayer &&
-            !p.isOut
-        ).length;
-
-      const playerCount =
-        pieces.filter(
-          p =>
-            p.isPlayer &&
-            !p.isOut
-        ).length;
-
-      // BOT全滅
       if (
-        botCount === 0
+        !isPlayerTurn &&
+        window.puzzleShotPending
       ) {
 
-        isPlayerTurn = true;
-      }
+        window.puzzleShotPending = false;
 
-      // プレイヤー全滅
-      else if (
-        playerCount === 0
-      ) {
+        const remainingTargets =
+          pieces.filter(
+            p =>
+              p.isTarget &&
+              !p.isOut
+          ).length;
 
-        isPlayerTurn = true;
-      }
+        if (remainingTargets === 0) {
 
-      // 通常
-      else {
+          // クリア: 結果確定後は操作不可のため isPlayerTurn は false のまま
+          puzzleCleared = true;
 
-        isPlayerTurn = true;
+        } else if (
+          puzzleShotsUsed >=
+          puzzleShotsAllowed
+        ) {
+
+          // 失敗: 同じく操作不可のため isPlayerTurn は false のまま
+          puzzleFailed = true;
+
+        } else {
+
+          spawnPuzzleShot();
+        }
       }
     }
   }
 
 
-  updateUI();
+  if (gameMode === "battle") {
+
+    updateUI();
+
+  } else {
+
+    updatePuzzleUI();
+  }
+}
+
+
+function gameLoop() {
+
+  if (gameMode === "block") {
+
+    drawBlockMode();
+
+  } else {
+
+    runOrbFrame();
+  }
 
   requestAnimationFrame(
     gameLoop
@@ -915,7 +3307,96 @@ function gameLoop() {
 
 
 // ========================================
-// シンプルBOT
+// BOTのおはじき/狙い選択ヘルパー
+// ========================================
+
+function randomFrom(arr) {
+
+  return arr[
+    Math.floor(
+      Math.random() * arr.length
+    )
+  ];
+}
+
+
+// 中心に近い(=狙いやすい)BOTのおはじきを選ぶ
+function pickCentralBotPiece(botPieces) {
+
+  return botPieces.reduce(
+    (best, p) => {
+
+      const d =
+        Math.hypot(
+          p.x - CENTER,
+          p.y - CENTER
+        );
+
+      const bd =
+        Math.hypot(
+          best.x - CENTER,
+          best.y - CENTER
+        );
+
+      return d < bd ? p : best;
+    }
+  );
+}
+
+
+// 攻撃者に最も近いプレイヤーのおはじきを選ぶ
+function pickNearestPlayerPiece(
+  playerPieces,
+  attacker
+) {
+
+  return playerPieces.reduce(
+    (best, p) => {
+
+      const d =
+        Math.hypot(
+          p.x - attacker.x,
+          p.y - attacker.y
+        );
+
+      const bd =
+        Math.hypot(
+          best.x - attacker.x,
+          best.y - attacker.y
+        );
+
+      return d < bd ? p : best;
+    }
+  );
+}
+
+
+// 盤外に一番近い(狙われると弱い)プレイヤーのおはじきを選ぶ
+function pickEdgePlayerPiece(playerPieces) {
+
+  return playerPieces.reduce(
+    (best, p) => {
+
+      const d =
+        Math.hypot(
+          p.x - CENTER,
+          p.y - CENTER
+        );
+
+      const bd =
+        Math.hypot(
+          best.x - CENTER,
+          best.y - CENTER
+        );
+
+      return d > bd ? p : best;
+    }
+  );
+}
+
+
+// ========================================
+// BOT(タイプ別)
 // ========================================
 
 function botMove() {
@@ -934,83 +3415,91 @@ function botMove() {
         !p.isOut
     );
 
-
-  // BOT全滅
   if (
-    botPieces.length === 0
-  ) {
-
-    window.botPending = false;
-
-    window.botMoving = false;
-
-    isPlayerTurn = true;
-
-    updateUI();
-
-    return;
-  }
-
-
-  // プレイヤー全滅
-  if (
+    botPieces.length === 0 ||
     playerPieces.length === 0
   ) {
 
     window.botPending = false;
-
     window.botMoving = false;
 
     isPlayerTurn = true;
-
-    updateUI();
 
     return;
   }
 
 
-  // BOTのおはじきをランダム選択
-  const attacker =
-    botPieces[
-      Math.floor(
-        Math.random() *
-        botPieces.length
-      )
-    ];
+  let attacker;
+  let target;
+  let power;
+  let spread;
 
+  switch (botType) {
 
-  // プレイヤーのおはじきをランダム選択
-  const target =
-    playerPieces[
-      Math.floor(
-        Math.random() *
-        playerPieces.length
-      )
-    ];
+    case "easy":
 
+      attacker = randomFrom(botPieces);
+      target = randomFrom(playerPieces);
+      power = 8 + Math.random() * 3;
+      spread = 0.4;
 
-  // 発射方向
-  const angle =
+      break;
+
+    case "hard":
+
+      attacker =
+        pickCentralBotPiece(botPieces);
+
+      target =
+        pickNearestPlayerPiece(
+          playerPieces,
+          attacker
+        );
+
+      power = 15 + Math.random() * 3;
+      spread = 0.05;
+
+      break;
+
+    case "trick":
+
+      attacker =
+        pickCentralBotPiece(botPieces);
+
+      target =
+        pickEdgePlayerPiece(playerPieces);
+
+      power = MAX_POWER;
+      spread = 0.04;
+
+      break;
+
+    case "normal":
+    default:
+
+      attacker = randomFrom(botPieces);
+      target = randomFrom(playerPieces);
+      power = 12;
+      spread = 0.18;
+
+      break;
+  }
+
+  let angle =
     Math.atan2(
       target.y - attacker.y,
       target.x - attacker.x
     );
 
-
-  // BOTのパワー
-  const power = 12;
-
+  angle +=
+    (Math.random() - 0.5) * spread;
 
   attacker.vx =
-    Math.cos(angle) *
-    power;
+    Math.cos(angle) * power;
 
   attacker.vy =
-    Math.sin(angle) *
-    power;
+    Math.sin(angle) * power;
 
-
-  // BOT移動中
   isPlayerTurn = false;
 
   window.botMoving = true;
@@ -1059,6 +3548,16 @@ function getPos(e) {
 // ========================================
 
 function startDrag(e) {
+
+  // ブロックモードは専用のドラッグ処理を使うため対象外
+  if (gameMode === "block") {
+    return;
+  }
+
+  // 勝敗・クリア/失敗が確定した後は操作できないようにする
+  if (currentResult) {
+    return;
+  }
 
   if (
     !isPlayerTurn ||
@@ -1140,7 +3639,6 @@ function endDrag(e) {
     dragCurrentPos.y;
 
 
-  // ★ 加速を少しアップ
   let power =
     Math.hypot(
       dx,
@@ -1148,7 +3646,6 @@ function endDrag(e) {
     ) * 0.18;
 
 
-  // ★ 最大パワー20
   power =
     Math.min(
       power,
@@ -1174,11 +3671,18 @@ function endDrag(e) {
       power;
 
 
-    // プレイヤーターン終了
     isPlayerTurn = false;
 
-    // BOT待ち
-    window.botPending = true;
+    if (gameMode === "battle") {
+
+      window.botPending = true;
+
+    } else if (gameMode === "puzzle") {
+
+      puzzleShotsUsed++;
+
+      window.puzzleShotPending = true;
+    }
   }
 
 
@@ -1195,7 +3699,7 @@ canvas.addEventListener(
   startDrag
 );
 
-// ★ PC操作: マウスがキャンバス(円)の外に出てもドラッグを継続できるように
+// PC操作: マウスがキャンバス(円)の外に出てもドラッグを継続できるように
 // mousemove / mouseup は document に紐付ける
 document.addEventListener(
   "mousemove",
@@ -1238,7 +3742,7 @@ canvas.addEventListener(
 
 
 // ========================================
-// UI更新
+// UI更新(対戦モード)
 // ========================================
 
 function updateUI() {
@@ -1262,48 +3766,46 @@ function updateUI() {
     `あなた: ${playerCount} / BOT: ${botCount}`;
 
 
-  // 引き分け
+  let newResult = null;
+
   if (
     playerCount === 0 &&
     botCount === 0
   ) {
+
+    newResult = "draw";
 
     turnStatus.innerText =
       "引き分け！";
 
     turnStatus.style.color =
       "#eccc68";
-  }
 
-
-  // プレイヤー勝利
-  else if (
+  } else if (
     botCount === 0
   ) {
+
+    newResult = "win";
 
     turnStatus.innerText =
       "あなたの勝利！";
 
     turnStatus.style.color =
       "#2ed573";
-  }
 
-
-  // BOT勝利
-  else if (
+  } else if (
     playerCount === 0
   ) {
+
+    newResult = "lose";
 
     turnStatus.innerText =
       "BOTの勝利...";
 
     turnStatus.style.color =
       "#eb3b5a";
-  }
 
-
-  // 通常
-  else {
+  } else {
 
     turnStatus.innerText =
       isPlayerTurn
@@ -1315,6 +3817,122 @@ function updateUI() {
       isPlayerTurn
         ? "#4bcffa"
         : "#fffa65";
+  }
+
+
+  if (newResult !== currentResult) {
+
+    currentResult = newResult;
+
+    if (newResult === "win") {
+
+      triggerWinEffect();
+
+      const reward =
+        { easy: 2, normal: 3, hard: 5, trick: 7 }[botType] ||
+        3;
+
+      skillPoints += reward;
+
+      updateSPDisplay();
+
+    } else if (
+      newResult === "lose"
+    ) {
+
+      triggerLoseEffect();
+
+    } else if (
+      newResult === "draw"
+    ) {
+
+      triggerDrawEffect();
+    }
+  }
+}
+
+
+// ========================================
+// UI更新(パズルモード)
+// ========================================
+
+function updatePuzzleUI() {
+
+  const remainingTargets =
+    pieces.filter(
+      p =>
+        p.isTarget &&
+        !p.isOut
+    ).length;
+
+  const shotsLeft =
+    Math.max(
+      puzzleShotsAllowed - puzzleShotsUsed,
+      0
+    );
+
+  puzzleInfo.innerText =
+    `残りショット: ${shotsLeft} / ターゲット: ${remainingTargets}`;
+
+  scoreStatus.innerText =
+    `ステージ ${puzzleStage} / 報酬 ${puzzleStages[puzzleStage].reward}SP`;
+
+
+  let newResult = null;
+
+  if (puzzleCleared) {
+
+    newResult = "win";
+
+    turnStatus.innerText =
+      "パズルクリア！";
+
+    turnStatus.style.color =
+      "#2ed573";
+
+  } else if (puzzleFailed) {
+
+    newResult = "lose";
+
+    turnStatus.innerText =
+      "失敗... リトライしよう";
+
+    turnStatus.style.color =
+      "#eb3b5a";
+
+  } else {
+
+    turnStatus.innerText =
+      isPlayerTurn
+        ? "ねらいを定めよう"
+        : "球が転がっています...";
+
+    turnStatus.style.color =
+      isPlayerTurn
+        ? "#4bcffa"
+        : "#fffa65";
+  }
+
+
+  if (newResult !== currentResult) {
+
+    currentResult = newResult;
+
+    if (newResult === "win") {
+
+      triggerWinEffect();
+
+      skillPoints +=
+        puzzleStages[puzzleStage].reward;
+
+      updateSPDisplay();
+
+    } else if (
+      newResult === "lose"
+    ) {
+
+      triggerLoseEffect();
+    }
   }
 }
 
@@ -1448,12 +4066,124 @@ resetBtn.onclick =
 
 
 // ========================================
+// BOTタイプ選択
+// ========================================
+
+botBtns.forEach(btn => {
+
+  btn.onclick = () => {
+
+    botType = btn.dataset.type;
+
+    botBtns.forEach(
+      b => b.classList.remove("selected")
+    );
+
+    btn.classList.add("selected");
+  };
+});
+
+
+// ========================================
+// パズルステージ選択
+// ========================================
+
+stageBtns.forEach(btn => {
+
+  btn.onclick = () => {
+
+    stageBtns.forEach(
+      b => b.classList.remove("selected")
+    );
+
+    btn.classList.add("selected");
+
+    initPuzzle(
+      parseInt(btn.dataset.stage, 10)
+    );
+  };
+});
+
+
+puzzleRetryBtn.onclick = () => {
+
+  initPuzzle(puzzleStage);
+};
+
+
+// ========================================
+// モード切替
+// ========================================
+
+function switchMode(mode) {
+
+  gameMode = mode;
+
+  tabBattle.classList.toggle(
+    "active",
+    mode === "battle"
+  );
+
+  tabPuzzle.classList.toggle(
+    "active",
+    mode === "puzzle"
+  );
+
+  tabBlock.classList.toggle(
+    "active",
+    mode === "block"
+  );
+
+  battleControls.style.display =
+    mode === "battle" ? "" : "none";
+
+  puzzleControls.style.display =
+    mode === "puzzle" ? "" : "none";
+
+  blockControls.style.display =
+    mode === "block" ? "" : "none";
+
+  canvas.classList.toggle(
+    "square-canvas",
+    mode === "block"
+  );
+
+  if (mode === "battle") {
+
+    initGame();
+
+  } else if (mode === "puzzle") {
+
+    initPuzzle(puzzleStage);
+
+  } else if (mode === "block") {
+
+    initBlockGame();
+  }
+}
+
+
+tabBattle.onclick = () =>
+  switchMode("battle");
+
+tabPuzzle.onclick = () =>
+  switchMode("puzzle");
+
+tabBlock.onclick = () =>
+  switchMode("block");
+
+
+// ========================================
 // ゲーム開始
 // ========================================
 
+recalcStats();
+
 renderColorPalette();
 
-initGame();
+updateSPDisplay();
+
+switchMode("battle");
 
 gameLoop();
 
