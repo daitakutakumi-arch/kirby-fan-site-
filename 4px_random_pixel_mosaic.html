@@ -76,8 +76,8 @@
 </head>
 <body>
 <header>
-  <h1>4pxブロック・ランダム1ピクセルモザイク</h1>
-  <p>画像を4×4ピクセルのブロックに区切り、各ブロック内で選んだ1ピクセルの色を、同じブロック内の別のランダムな1ピクセルと入れ替えます。</p>
+  <h1>平均色ブロック・モザイク</h1>
+  <p>指定したピクセル数のブロックに区切り、各ブロック内の平均色を計算して、その平均色をブロック内の全ピクセルに塗ります。</p>
 </header>
 
 <div class="controls">
@@ -161,12 +161,11 @@
   });
 
   /*
-    独自モザイク処理:
-    - 画像を block × block に分割
-    - 各ブロックからランダムに1ピクセル A を選ぶ
-    - 同じブロックから別のランダムな1ピクセル B を選ぶ
-    - A と B のRGBA値を交換
-    - つまり各4×4ブロックにつき「1組だけ」色が入れ替わる
+    平均色モザイク処理:
+    - 画像を size × size のブロックに分割
+    - 各ブロック内の全ピクセルから RGBA の平均値を計算
+    - その平均色を、ブロック内の全ピクセルに塗る
+    - 画像の端にある小さいブロックも正しく処理
   */
   applyBtn.addEventListener('click', () => {
     if (!original) return;
@@ -176,7 +175,8 @@
 
     const w = original.width;
     const h = original.height;
-    const data = new Uint8ClampedArray(original.data);
+    const src = original.data;
+    const data = new Uint8ClampedArray(src);
 
     let blocks = 0;
 
@@ -186,26 +186,37 @@
         const bh = Math.min(size, h - by);
         const count = bw * bh;
 
-        if (count < 2) continue;
+        let sumR = 0;
+        let sumG = 0;
+        let sumB = 0;
+        let sumA = 0;
 
-        // ブロック内の2つの異なるピクセルをランダム選択
-        const a = Math.floor(Math.random() * count);
-        let b = Math.floor(Math.random() * (count - 1));
-        if (b >= a) b++;
+        // ブロック内の全ピクセルの色を合計
+        for (let y = by; y < by + bh; y++) {
+          for (let x = bx; x < bx + bw; x++) {
+            const i = (y * w + x) * 4;
+            sumR += src[i];
+            sumG += src[i + 1];
+            sumB += src[i + 2];
+            sumA += src[i + 3];
+          }
+        }
 
-        const ax = bx + (a % bw);
-        const ay = by + Math.floor(a / bw);
-        const bx2 = bx + (b % bw);
-        const by2 = by + Math.floor(b / bw);
+        // ブロックの平均色
+        const avgR = Math.round(sumR / count);
+        const avgG = Math.round(sumG / count);
+        const avgB = Math.round(sumB / count);
+        const avgA = Math.round(sumA / count);
 
-        const ai = (ay * w + ax) * 4;
-        const bi = (by2 * w + bx2) * 4;
-
-        // RGBA 4チャンネルを交換
-        for (let c = 0; c < 4; c++) {
-          const tmp = data[ai + c];
-          data[ai + c] = data[bi + c];
-          data[bi + c] = tmp;
+        // 平均色をブロック内の全ピクセルに適用
+        for (let y = by; y < by + bh; y++) {
+          for (let x = bx; x < bx + bw; x++) {
+            const i = (y * w + x) * 4;
+            data[i]     = avgR;
+            data[i + 1] = avgG;
+            data[i + 2] = avgB;
+            data[i + 3] = avgA;
+          }
         }
 
         blocks++;
@@ -215,7 +226,7 @@
     canvas.width = w;
     canvas.height = h;
     ctx.putImageData(new ImageData(data, w, h), 0, 0);
-    setStatus(`${size}×${size}px / ${blocks.toLocaleString()}ブロックを処理`);
+    setStatus(`${size}×${size}px / ${blocks.toLocaleString()}ブロックを平均色で処理`);
   });
 
   resetBtn.addEventListener('click', () => {
