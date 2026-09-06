@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ブラックジャック 戦略計算ツール</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #0f381e;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background-color: #1b5e20;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+        }
+        h1 {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #ffd700;
+        }
+        .section {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: #c8e6c9;
+        }
+        .card-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+            gap: 6px;
+        }
+        .btn-card {
+            background-color: #ffffff;
+            color: #333;
+            border: 1px solid #ccc;
+            padding: 8px 0;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.1s;
+        }
+        .btn-card:hover {
+            background-color: #e0e0e0;
+        }
+        .btn-card.selected {
+            background-color: #ffd700;
+            color: #000;
+            border-color: #ffb300;
+            transform: scale(1.05);
+        }
+        .my-cards-display {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+            min-height: 36px;
+        }
+        .card-tag {
+            background: #ffffff;
+            color: #000;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .card-tag .remove {
+            cursor: pointer;
+            color: #ff1744;
+            font-weight: bold;
+        }
+        .btn-action {
+            width: 100%;
+            background-color: #d50000;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+        .btn-action:hover {
+            background-color: #b71c1c;
+        }
+        .result-box {
+            background-color: #ffffff;
+            color: #333;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .action-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin: 5px 0;
+            color: #1b5e20;
+        }
+        .details {
+            font-size: 0.95rem;
+            color: #555;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>♠️ BJ 最適戦略GUI計算ツール ♥️</h1>
+
+    <div class="section">
+        <label>ディーラーの見せ札 (アップカード)</label>
+        <div class="card-selector" id="dealer-selector"></div>
+    </div>
+
+    <div class="section">
+        <label>自分の手札（カードをクリックして追加）</label>
+        <div class="card-selector" id="player-selector"></div>
+        <div class="my-cards-display" id="my-cards"></div>
+        <button class="btn-action" onclick="resetPlayerCards()">自分の手札をリセット</button>
+    </div>
+
+    <div class="result-box">
+        <div>推奨アクション</div>
+        <div class="action-title" id="action-result">カードを選択してください</div>
+        <div class="details" id="details-result">現在の合計: -</div>
+    </div>
+</div>
+
+<script>
+    const cards = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+    let dealerCard = null;
+    let playerCards = [];
+
+    // ボタンの動的生成
+    function initSelectors() {
+        const dealerContainer = document.getElementById('dealer-selector');
+        const playerContainer = document.getElementById('player-selector');
+
+        cards.forEach(card => {
+            // ディーラー用
+            const btnD = document.createElement('button');
+            btnD.className = 'btn-card';
+            btnD.innerText = card;
+            btnD.onclick = () => selectDealerCard(card, btnD);
+            dealerContainer.appendChild(btnD);
+
+            // プレイヤー用
+            const btnP = document.createElement('button');
+            btnP.className = 'btn-card';
+            btnP.innerText = card;
+            btnP.onclick = () => addPlayerCard(card);
+            playerContainer.appendChild(btnP);
+        });
+    }
+
+    function selectDealerCard(card, element) {
+        dealerCard = card;
+        document.querySelectorAll('#dealer-selector .btn-card').forEach(b => b.classList.remove('selected'));
+        element.classList.add('selected');
+        calculateStrategy();
+    }
+
+    function addPlayerCard(card) {
+        playerCards.push(card);
+        renderPlayerCards();
+        calculateStrategy();
+    }
+
+    function removePlayerCard(index) {
+        playerCards.splice(index, 1);
+        renderPlayerCards();
+        calculateStrategy();
+    }
+
+    function resetPlayerCards() {
+        playerCards = [];
+        renderPlayerCards();
+        calculateStrategy();
+    }
+
+    function renderPlayerCards() {
+        const container = document.getElementById('my-cards');
+        container.innerHTML = '';
+        playerCards.forEach((card, index) => {
+            const tag = document.createElement('div');
+            tag.className = 'card-tag';
+            tag.innerHTML = `${card} <span class="remove" onclick="removePlayerCard(${index})">×</span>`;
+            container.appendChild(tag);
+        });
+    }
+
+    // 点数計算ロジック
+    function parseCardValue(card) {
+        if (['J', 'Q', 'K'].includes(card)) return 10;
+        if (card === 'A') return 11;
+        return parseInt(card);
+    }
+
+    function calculateHand(cardsArr) {
+        let total = 0;
+        let aces = 0;
+
+        for (let card of cardsArr) {
+            let val = parseCardValue(card);
+            if (val === 11) aces++;
+            total += val;
+        }
+
+        while (total > 21 && aces > 0) {
+            total -= 10;
+            aces--;
+        }
+
+        const isSoft = aces > 0 && total <= 21;
+        return { total, isSoft, isBust: total > 21 };
+    }
+
+    // ベーシックストラテジー判定
+    function calculateStrategy() {
+        const actionEl = document.getElementById('action-result');
+        const detailsEl = document.getElementById('details-result');
+
+        if (!dealerCard || playerCards.length === 0) {
+            actionEl.innerText = 'カードを選択してください';
+            detailsEl.innerText = '現在の合計: -';
+            return;
+        }
+
+        const hand = calculateHand(playerCards);
+        const dVal = parseCardValue(dealerCard);
+
+        detailsEl.innerText = `現在の合計: ${hand.total} ${hand.isSoft ? '(ソフト)' : ''}`;
+
+        if (hand.isBust) {
+            actionEl.innerText = 'バースト (負け)';
+            actionEl.style.color = '#d50000';
+            return;
+        }
+
+        if (hand.total === 21) {
+            actionEl.innerText = 'スタンド (21点！)';
+            actionEl.style.color = '#1b5e20';
+            return;
+        }
+
+        let action = 'ヒット';
+        
+        if (hand.isSoft) {
+            // ソフトハンド戦略
+            if (hand.total >= 19) action = 'スタンド';
+            else if (hand.total === 18) {
+                if ([2, 3, 4, 5, 6, 7, 8].includes(dVal)) action = 'スタンド';
+                else action = 'ヒット';
+            } else {
+                action = 'ヒット';
+            }
+        } else {
+            // ハードハンド戦略
+            if (hand.total >= 17) {
+                action = 'スタンド';
+            } else if (hand.total >= 13 && hand.total <= 16) {
+                if (dVal >= 2 && dVal <= 6) action = 'スタンド';
+                else action = 'ヒット';
+            } else if (hand.total === 12) {
+                if (dVal >= 4 && dVal <= 6) action = 'スタンド';
+                else action = 'ヒット';
+            } else {
+                action = 'ヒット';
+            }
+        }
+
+        actionEl.innerText = action;
+        actionEl.style.color = action === 'スタンド' ? '#2e7d32' : '#d84315';
+    }
+
+    initSelectors();
+</script>
+</body>
+</html>
